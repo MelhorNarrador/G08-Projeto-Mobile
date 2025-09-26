@@ -5,7 +5,7 @@ Este repositório contém o desenvolvimento da aplicação **Lane**, um projeto 
 ## Links Importantes
 - [Relatório v1 em Markdown](Documentos/relatorio-v1.md)  
 - [Relatório v1 em PDF](Documentos/gXX-proposta-v1.pdf)  
-- [Protótipo Figma](https://www.figma.com/make/c35ZsdYoegR7YtuFe3PDYD/Aplicação-de-Localização-de-Eventos?node-id=0-1&t=coD0KPh89QaUTP2I-1)  
+- [Protótipo Figma]((https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Event-Location-Mobile-App?node-id=0-1&t=QazlaUYdgDNLVjF1-1))  
 - [Espaço ClickUp](https://app.clickup.com/90151662103/v/s/90156861389)  
 - [Servidor Discord](https://discord.gg/N9EJm2re)
 
