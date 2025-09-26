@@ -4,7 +4,7 @@
 **Universidade Europeia / IADE – Engenharia Informática**  
 **Projeto Mobile – 3º semestre (2025/2026)**  
 **Grupo XX**  
-**Elementos do Grupo**: Duarte Barbosa (XXXXX), Nome2 (XXXXX), Nome3 (XXXXX)  
+**Elementos do Grupo**: Francisco Abecasis (20240120), Pedro António (20241273), Filomeno Sabino (20241963)  
 
 **GitHub Repo**: <link>  
 **Figma**: [Protótipo no Figma](https://www.figma.com/make/c35ZsdYoegR7YtuFe3PDYD/Aplicação-de-Localização-de-Eventos?node-id=0-1&t=coD0KPh89QaUTP2I-1)  
@@ -62,89 +62,118 @@ A **Lane** pretende tornar este processo mais **simples, seguro e centralizado**
 ---
 
 ## 5. Guiões de Teste
-### Guion 1 – Descobrir evento próximo (Core)
-1. O utilizador abre a app e dá permissão de localização.  
+### Guião 1 – Descobrir evento próximo (Core)
+1. O utilizador abre a app e dá permissão de utilização da sua localização.  
 2. A app apresenta lista/mapa de eventos próximos.  
 3. O utilizador escolhe um evento e visualiza os detalhes.  
-4. Seleciona “Obter direções”.  
+4. Seleciona “Navegar”.
+5. Seleciona metodo de transporte.
+6. Mapa abre e apresenta caminho/transportes.
 **Resultado esperado**: O utilizador consegue chegar ao evento.  
 
-### Guion 2 – Criar evento privado
+### Guião 2 – Criar evento privado
 1. O utilizador clica em “Criar evento”.  
-2. Introduz título, descrição, tipo e localização.  
+2. Introduz título, descrição, tipo/categoria, localização e preço.  
 3. Marca como **Privado/Convite**.  
-4. Seleciona convidados.  
+4. Seleciona convidados da sua lista de amigos.  
 **Resultado esperado**: Apenas os convidados recebem acesso.  
 
-### Guion 3 – Seguir perfil verificado
-1. O utilizador pesquisa “Partido X”.  
-2. Surge perfil verificado com selo.  
+### Guião 3 – Seguir perfil
+1. O utilizador pesquisa “Partido X”, “John Smith”.  
+2. Surge perfil, se verificado, com selo de verificação.  
 3. Clica em “Seguir”.  
-**Resultado esperado**: Passa a receber notificações oficiais.  
+**Resultado esperado**: Passa a receber notificações do perfil.
+
+### Guião 4 – Adicionar amigo
+1. Utilizador pesquisa “Partido X”, “John Smith”.
+2. Seleciona “Adicionar amigo”.
+3. Pedido é enviado ao destinatario, se um pedido já tiver sido feito pelo destinatario o user é adicionado automaticamente á lista de amigos.
+**Resultado esperado**: Amigo é adicionado á lista de amigos e pode ser convidado para eventos privados do utilizador.
 
 ---
 
-## 6. Casos de Utilização
-### UC-Core: Descobrir eventos próximos
-- **Ator**: Utilizador  
-- **Pré-condições**: Localização ativa  
-- **Fluxo principal**: Mostrar eventos → Selecionar → Ver rota  
-- **Pós-condição**: Utilizador chega ao evento  
-
-### UC-2: Criar evento privado  
-### UC-3: Seguir perfil verificado  
-
----
-
-## 7. Descrição da Solução (provisória)
+## 6. Descrição da Solução (provisória)
 ### 7.1 Enquadramento nas UCs
 - **PDM**: Kotlin + Jetpack Compose  
 - **POO**: Backend Spring Boot (REST APIs)  
 - **BD**: PostgreSQL (eventos, utilizadores, convites, categorias)  
 - **CC/MD**: Google Maps API para rotas  
 
-### 7.2 Requisitos
+### 6.2 Requisitos
 **Funcionais**:  
-- Criar eventos (públicos/privados).  
-- Filtrar por tipo e proximidade.  
-- Mostrar rotas.  
-- Gestão de convites.  
-- Perfis verificados.  
+- Login e criação de conta
+- Criar eventos (públicos/privados).
+- Criação de perfil e edição      
+- Perfis verificados.
+- Conformidade RGPD.
+- Integração da Google Maps API 
 
 **Não-funcionais**:  
-- Resposta rápida (<2s).  
-- Conformidade RGPD.  
-- Escalabilidade (500+ utilizadores ativos).  
+- Chat privado.  
+- Criação de grupos
+- Rating de contas verificadas
 
-### 7.3 Arquitetura
-App Android (Kotlin/Compose) ↔ API REST (Spring Boot) ↔ PostgreSQL  
+### 6.3 Arquitetura
+A arquitetura da aplicação **Lane** é organizada em três camadas principais, com integração de serviços externos:
+
+- **App Mobile (Cliente)**  
+  Desenvolvida para Android, é responsável pela interface com o utilizador, permissões de localização, chamadas à API e apresentação dos eventos em lista ou mapa.
+
+- **Persistência de Dados (Base de Dados Relacional)**  
+  Utiliza tabelas relacionais para gerir informação de utilizadores, eventos, convites e categorias, com índices para otimizar consultas por localização e tipo de evento.
+
+- **Integrações Externas**  
+  A aplicação recorre à API do Google Maps para fornecer rotas (a pé, de carro ou transportes públicos) e, futuramente, poderá usar serviços de notificações push. 
+
+**Qualidades da Arquitetura**  
+- Escalável e modular.  
+- Separação clara de responsabilidades.  
+- Suporte a autenticação e segurança via tokens.  
 
 ---
 
-## 8. Modelo de Domínio
+### 6.4 Tecnologias a Utilizar
+- **Mobile (Cliente)**  
+  - Kotlin  
+  - Jetpack Compose (UI)  
+  - Google Play Services Location (geolocalização)  
+
+- **Backend (Servidores e Lógica de Negócio)**  
+  - Spring Boot (Java/Kotlin)  
+  - Spring Security + JWT (autenticação)  
+
+- **Base de Dados**  
+  - PostgreSQL 
+
+- **Integrações Externas**  
+  - Google Maps SDK  
+  - Google Directions API  
+
+- **DevOps e Gestão**   
+  - GitHub  
+  - Figma (design de interfaces)  
+  - ClickUp (planeamento)  
+  - Discord (comunicação de equipa)  
+ 
+
+---
+
+## 7. Modelo de Domínio
 ![Modelo de Domínio – Lane](imgs/modelo_dominio_lane.png)
 
 ---
 
-## 9. Planeamento
-### 9.1 WBS
+## 8. Planeamento
+### 8.1 WBS
 ![WBS – Lane](imgs/wbs_lane.png)
 
-### 9.2 Gantt (resumo)
-| Semana | Atividade |
-|--------|------------|
-| 1 | Ideação, requisitos, mockups |
-| 2 | Modelo de domínio, casos de uso |
-| 3 | Backend esqueleto |
-| 4 | Mobile esqueleto |
-| 5 | Integração mapas + filtros |
-| 6 | Testes + relatório v1 |
-| 7 | Poster + vídeo |
-| 8 | Revisões e submissão |
+### 8.2 Gantt
+![Grafico de Gantt - Lane](imgs/gantt_lane.png).
+
 
 ---
 
-## 10. Mockups (Figma)
+## 9. Mockups (Figma)
 Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 
 - **Ecrã inicial**  
@@ -162,8 +191,9 @@ Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 A **Lane** será uma aplicação que centraliza a descoberta de eventos locais, tornando o processo intuitivo, rápido e confiável.  
 Na **2ª entrega** será desenvolvido um protótipo funcional mínimo com:  
 - Criação de eventos  
-- Pesquisa por proximidade  
-- Perfis verificados (protótipo inicial)  
+- Pesquisa de eventos
+- Perfis verificados e metodo de verificação
+- Integração inicial da API
 
 ---
 
