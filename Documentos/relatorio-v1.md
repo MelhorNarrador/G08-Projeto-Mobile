@@ -176,8 +176,8 @@ Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 ![Mockup ecrã inicial](imgs/Ecrã_Log_In.png)  
 
 - **Criação de evento**  
-![Mockup criar evento 1 ](imgs/Criação de Eventos 1.png)
-![Mockup criar evento 2 ](imgs/Criação de Eventos 2.png)  
+![Mockup criar evento 1 ](imgs/Criação_de_Eventos_1.png)
+![Mockup criar evento 2 ](imgs/Criação_de_Eventos_2.png)  
 
 - **Mapa com eventos**  
 ![Mockup mapa](imgs/Mapa.png)  
