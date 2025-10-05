@@ -173,7 +173,7 @@ A arquitetura da aplicação **Lane** é organizada em três camadas principais,
 Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 
 - **Ecrã inicial**  
-![Mockup ecrã inicial](imgs/mockup_inicial.png)  
+![Mockup ecrã inicial](Documentos/imgs/Ecrã_Log_In.png)  
 
 - **Criação de evento**  
 ![Mockup criar evento](imgs/mockup_criar_evento.png)  
