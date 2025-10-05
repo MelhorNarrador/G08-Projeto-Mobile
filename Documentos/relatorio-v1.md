@@ -93,7 +93,7 @@ A **Lane** pretende tornar este processo mais **simples, seguro e centralizado**
 ---
 
 ## 6. Descrição da Solução (provisória)
-### 7.1 Enquadramento nas UCs
+### 6.1 Enquadramento nas UCs
 - **PDM**: Kotlin + Jetpack Compose  
 - **POO**: Backend Spring Boot (REST APIs)  
 - **BD**: PostgreSQL (eventos, utilizadores, convites, categorias)  
@@ -155,21 +155,15 @@ A arquitetura da aplicação **Lane** é organizada em três camadas principais,
   - ClickUp (planeamento)  
   - Discord (comunicação de equipa)  
  
-
 ---
 
-## 7. Modelo de Domínio
-![Modelo de Domínio – Lane](imgs/modelo_dominio_lane.png)
-
----
-
-## 8. Planeamento
-### 8.1 Gantt e WBS
+## 7. Planeamento
+### 7.1 Gantt e WBS
 **Gantt**:[Grafico de Gantt e WBS](https://app.clickup.com/90151662103/v/li/901516012138).
 
 ---
 
-## 9. Mockups (Figma)
+## 8. Mockups (Figma)
 Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 
 - **Ecrã inicial**  
@@ -184,7 +178,7 @@ Aqui inserem-se capturas dos principais ecrãs exportados do Figma:
 
 ---
 
-## 11. Conclusão
+## 9. Conclusão
 A **Lane** será uma aplicação que centraliza a descoberta de eventos locais, tornando o processo intuitivo, rápido e confiável.  
 Na **2ª entrega** será desenvolvido um protótipo funcional mínimo com:  
 - Criação de eventos  
@@ -194,7 +188,7 @@ Na **2ª entrega** será desenvolvido um protótipo funcional mínimo com:
 
 ---
 
-## Bibliografia
+## 10. Bibliografia
 [1] Eventbrite – https://www.eventbrite.com  
 [2] Facebook Events – https://www.facebook.com/events  
 [3] Meetup – https://www.meetup.com  
