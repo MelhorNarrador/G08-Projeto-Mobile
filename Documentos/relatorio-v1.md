@@ -165,8 +165,7 @@ A arquitetura da aplicação **Lane** é organizada em três camadas principais,
 
 ## 8. Planeamento
 ### 8.1 Gantt e WBS
-![Grafico de Gantt - Lane](https://app.clickup.com/90151662103/v/li/901516012138).
-
+**Gantt**:[Grafico de Gantt e WBS](https://app.clickup.com/90151662103/v/li/901516012138).
 
 ---
 
