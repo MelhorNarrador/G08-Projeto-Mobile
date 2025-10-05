@@ -3,7 +3,7 @@
 
 **Universidade Europeia / IADE – Engenharia Informática**  
 **Projeto Mobile – 3º semestre (2025/2026)**  
-**Grupo XX**  
+**Grupo 08**  
 **Elementos do Grupo**: Francisco Abecasis (20240120), Pedro António (20241273), Filomeno Sabino (20241963), Savio Casimira (20240896)
 
 **Figma**: [Protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Event-Location-Mobile-App?node-id=0-1&t=h6hJrMpZQfViGIBV-1)  
