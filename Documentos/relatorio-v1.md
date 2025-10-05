@@ -15,7 +15,7 @@
 
 ![Logo da Lane](imgs/logo_lane.png)
 
----
+---  
 
 ## Palavras-chave
 aplicações móveis, geolocalização, descoberta de eventos, convites digitais, perfis verificados, redes sociais, mapas interativos
