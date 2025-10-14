@@ -9,7 +9,7 @@
 **Figma**: [Protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)  
 **ClickUp**: [Espaço ClickUp](https://app.clickup.com/90151662103/v/s/90156861389)  
 **Discord**: [Servidor Lane](https://discord.gg/N9EJm2re)  
-**GitHub**: [Repositorio GitHub](https://github.com/MelhorNarrador/G--Trabalho-Web.git)
+**GitHub**: [Repositorio GitHub](https://github.com/MelhorNarrador/G08-Projeto-Mobile.git)
 
 ---
 
