@@ -6,7 +6,7 @@
 **Grupo 08**  
 **Elementos do Grupo**: Francisco Abecasis (20240120), Pedro António (20241273), Filomeno Sabino (20241963), Savio Casimira (20240896), Gianni Lopes (20240593)
 
-**Figma**: [Protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Event-Location-Mobile-App?node-id=0-1&t=h6hJrMpZQfViGIBV-1)  
+**Figma**: [Protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)  
 **ClickUp**: [Espaço ClickUp](https://app.clickup.com/90151662103/v/s/90156861389)  
 **Discord**: [Servidor Lane](https://discord.gg/N9EJm2re)  
 **GitHub**: [Repositorio GitHub](https://github.com/MelhorNarrador/G--Trabalho-Web.git)
