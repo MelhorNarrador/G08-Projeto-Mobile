@@ -26,9 +26,7 @@ import pt.iade.lane.ui.theme.LanePurple
 import pt.iade.lane.ui.theme.LaneTheme
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
-/**
- * Activity para o ecrã de Login.
- */
+
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +47,6 @@ class LoginActivity : ComponentActivity() {
         }
     }
 }
-
-/**
- * O Composable que desenha o ecrã de Login
- */
 @Composable
 fun LoginScreen(
     onLoginClick: (String, String) -> Unit,
@@ -147,7 +141,7 @@ fun LoginScreen(
                 onClick = { onLoginClick(email, password) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White.copy(alpha = 0.3f) // Cor do botão
+                    containerColor = Color.White.copy(alpha = 0.3f)
                 )
             ) {
                 Text("Iniciar Sessão", color = Color.White)

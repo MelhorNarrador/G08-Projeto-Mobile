@@ -34,12 +34,10 @@ data class Evento(
     val longitude: Double?,
 
     @SerializedName("event_date")
-    val data: Date, // Se a API enviar como String (ex: "2025-10-23T17:17:51")
-    // o Gson vai tentar converter. Pode ser preciso um 'TypeAdapter'
-    // mas por agora, vamos assumir que funciona.
+    val data: Date,
 
     @SerializedName("event_price")
-    val preco: Double, // Na BD está 'DEFAULT 0', por isso não deve ser nulo (Talvez Corriga)
+    val preco: Double, // Na BD está 'DEFAULT 0', por isso não deve ser nulo (Talvez Corrija)
 
     @SerializedName("created_at")
     val criadoEm: Date

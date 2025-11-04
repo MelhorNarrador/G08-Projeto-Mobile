@@ -84,7 +84,7 @@ fun LaneApp(viewModel: EventoViewModel) {
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding) // Aplica o padding para a barra não ficar por cima
+                .padding(innerPadding)
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
@@ -105,17 +105,14 @@ fun MapContent(viewModel: EventoViewModel) {
     }
 
     when {
-        // Estado de Carregamento
         isLoading -> {
             CircularProgressIndicator()
         }
 
-        // Estado de Erro
         errorMessage != null -> {
             Text(text = "Erro: $errorMessage")
         }
 
-        // Estado de Sucesso (Mapa)
         else -> {
             GoogleMap(
                 modifier = Modifier.fillMaxSize()

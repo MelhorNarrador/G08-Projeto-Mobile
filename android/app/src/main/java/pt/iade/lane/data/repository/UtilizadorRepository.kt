@@ -6,11 +6,9 @@ import pt.iade.lane.data.network.RetrofitClient
 
 /**
  * Repositório para gerir todos os dados relacionados com 'Utilizadores'.
- * É a ponte entre a API (RetrofitClient) e os ViewModels.
+ * API (RetrofitClient) e ViewModels.
  */
 class UtilizadorRepository {
-
-    // Obtém a instância da nossa API Service (que o RetrofitClient criou)
     private val apiService = RetrofitClient.apiService
 
     /**

@@ -4,9 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class Utilizador(
 
-    // Usamos @SerializedName para converter o 'snake_case' da BD/JSON
-    // para 'camelCase', que é o padrão em Kotlin.
-
     @SerializedName("account_id")
     val id: Int,
 
