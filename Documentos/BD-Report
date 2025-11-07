@@ -1,0 +1,118 @@
+Capa:
+
+Título (ex: Relatório da Base de Dados - Projeto Lane)
+
+Teu Nome
+
+Nome da UC (Unidade Curricular)
+
+Nome do Professor
+
+Data
+
+Índice: (Auto-gerado pelo Word/Docs)
+
+1. Introdução
+Objetivo do Relatório: Descrever a arquitetura e implementação da base de dados PostgreSQL criada para suportar a aplicação móvel "Lane".
+
+Breve Descrição do Projeto: O que é a "Lane"? (ex: "Uma app social focada na descoberta e criação de eventos locais, permitindo aos utilizadores conectar-se através de um sistema de seguidores e participar em eventos.")
+
+Ferramentas Utilizadas: PostgreSQL (versão X), pgAdmin, etc.
+
+2. Modelo Conceptual (MER)
+Nesta secção, tu colocas a imagem do teu MER (Modelo Entidade-Relação).
+
+É o diagrama com as "caixas" (Entidades, ex: Utilizador, Evento) e os "losangos" (Relações, ex: "Cria", "Segue", "Participa").
+
+Mesmo que não o tenhas feito formalmente, podes desenhar um simples numa ferramenta online (como o diagrams.net) e colá-lo aqui. É um passo muito valorizado.
+
+3. Modelo Lógico (Esquema Relacional)
+Aqui, explicas as regras de passagem do Modelo Conceptual (MER) para o Modelo Lógico (as tabelas).
+
+Exemplo de Justificação (a tua mais importante):
+
+"A relação N-para-N (muitos-para-muitos) 'Utilizador segue Utilizador' foi implementada através da tabela de junção followers. Seguindo a regra de negócio de que 'amizade' é um seguimento mútuo, a entidade friends tornou-se redundante e foi removida, sendo 'amizade' um estado calculado pela API."
+
+Exemplo 2:
+
+"A relação N-para-N 'Utilizador participa em Evento' (identificada nos mockups) foi implementada através da criação da tabela de junção event_participants."
+
+4. Modelo Físico (Descrição das Tabelas)
+Esta é a secção mais importante. Tu vais pegar no teu Create.sql e "traduzi-lo" para português, tabela por tabela.
+
+4.1. Tabela user_details
+
+Propósito: Armazena toda a informação central do utilizador.
+
+Descrição das Colunas:
+
+account_id (SERIAL, PK): Identificador único...
+
+account_username (VARCHAR(50), UNIQUE): Nome de utilizador público. Definido como UNIQUE para garantir que não existem dois utilizadores iguais.
+
+account_gender (VARCHAR(30), CHECK): Género do utilizador. Utiliza uma CHECK constraint para garantir a integridade dos dados, limitando as opções às do dropdown menu da app.
+
+account_dob (DATE): Data de nascimento, usada para calcular a idade do utilizador de forma dinâmica.
+
+(...fazes isto para todas as colunas...)
+
+4.2. Tabela events
+
+Propósito: Armazena a informação de todos os eventos criados.
+
+Descrição das Colunas:
+
+max_participants (INTEGER): Coluna adicionada para implementar a regra de negócio de limite de participantes. A validação final (count < max_participants) é feita pelo backend para evitar race conditions.
+
+event_visibility (VARCHAR(20), CHECK): Garante que um evento só pode ser 'public', 'private' ou 'invite'.
+
+(...continua...)
+
+(Repetes isto para: followers, event_participants, invitations e filters).
+
+4.3. Otimização (Índices)
+
+Propósito: Explicar por que criaste os índices.
+
+Justificação: "Para garantir a performance da aplicação à medida que a base de dados cresce, foram criados índices B-Tree em todas as colunas que servem de Chave Estrangeira (FK). Isto acelera drasticamente as operações de JOIN e WHERE, como a pesquisa de eventos ou o cálculo de amigos."
+
+5. Explicação das Queries
+Esta secção é vital por causa da avaliação do teu professor.
+
+Tu vais copiar e colar o código do teu ficheiro Queries.sql (o que melhorámos) para aqui.
+
+Para cada query, vais explicá-la:
+
+Query 1: UPDATE ...
+
+Objetivo: Demonstrar a diversidade (uma operação UPDATE).
+
+Explicação: ...
+
+Query 2: SELECT ... (Multi-JOIN)
+
+Objetivo: Demonstrar complexidade.
+
+Explicação: "Esta query combina 3 tabelas (events, filters, user_details) para encontrar eventos futuros que cumprem múltiplos critérios..."
+
+Query 3: SELECT ... (INTERSECT)
+
+Objetivo: Demonstrar a query mais complexa e central da lógica de negócio.
+
+Explicação: "Esta query implementa a regra de 'amizade'. Utiliza duas sub-queries e um INTERSECT para encontrar o conjunto de utilizadores que têm uma relação mútua na tabela followers..."
+
+(...continua para todas as queries do ficheiro...)
+
+6. Conclusão
+Um parágrafo final.
+
+Exemplo: "A estrutura da base de dados desenhada cumpre todos os requisitos identificados nos mockups da aplicação, garantindo performance através de índices e integridade de dados através de CONSTRAINTS robustas. A base está pronta para ser ligada ao backend (API REST) e suportar as operações da aplicação "Lane"."
+
+7. Anexos
+Aqui, podes referir-te aos teus ficheiros SQL.
+
+Anexo A: Create.sql
+
+Anexo B: Populate.sql
+
+Anexo C: Queries.sql
