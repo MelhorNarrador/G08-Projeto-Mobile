@@ -280,6 +280,6 @@ A estrutura da base de dados desenhada cumpre todos os requisitos funcionais ide
 A implementação de `CONSTRAINTS` robustas (como `CHECK`, `UNIQUE`, `FOREIGN KEY`) garante a integridade e a consistência dos dados, enquanto a adição de `INDEXES` assegura a performance e a escalabilidade da aplicação. A base de dados está pronta para ser ligada ao *backend* (API REST) e suportar todas as operações da aplicação "Lane".
 
 ## 7\. Anexos (Ficheiros SQL)
-  [* **`Create.sql`**](sql/Create.sql): Contém todo o código `SQL` para criar a estrutura completa e vazia da base de dados. 
-  [* **`Populate.sql`**](sql/Populate.sql): Contém código `SQL` (`INSERT`) para popular a base de dados com dados de teste. 
-  [* **`Queries.sql`**](sql/Queries.sql): Contém as queries de demonstração listadas na Secção 5, prontas para execução e teste. 
+  [**`Create.sql`**](../sql/Create.sql): Contém todo o código `SQL` para criar a estrutura completa e vazia da base de dados. 
+  [**`Populate.sql`**](../sql/Populate.sql): Contém código `SQL` (`INSERT`) para popular a base de dados com dados de teste. 
+  [**`Queries.sql`**](../sql/Queries.sql): Contém as queries de demonstração listadas na Secção 5, prontas para execução e teste. 
