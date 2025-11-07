@@ -46,7 +46,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 **Propósito:** Tabela central que armazena a informação de cada conta de utilizador.
 
 | Coluna | Tipo | PK/FK/Constraint | Descrição |
-| --- | --- | --- | --- |
+|---|---|---|---|
 | `account_id` | `SERIAL` | `PK` | Identificador único e auto-incrementado. |
 | `account_name` | `VARCHAR(100)` | `NOT NULL` | Nome real do utilizador. |
 | `account_username` | `VARCHAR(50)` | `NOT NULL`, `UNIQUE` | Nome de utilizador público. `UNIQUE` impede registos duplicados. |
