@@ -39,6 +39,11 @@
             android:exported="true"
             android:theme="@style/Theme.Lane">
         </activity>
+        <activity
+            android:name=".ui.CreateEventActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Lane">
+        </activity>
     </application>
 
 </manifest>

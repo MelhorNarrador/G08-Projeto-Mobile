@@ -34,6 +34,13 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.ui.viewmodels.EventoViewModel
+import android.content.Intent
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.FabPosition
+
+
 
 class MainActivity : ComponentActivity() {
 
@@ -57,6 +64,7 @@ class MainActivity : ComponentActivity() {
 fun LaneApp(viewModel: EventoViewModel) {
     var selectedItemIndex by remember { mutableIntStateOf(0) }
     val items = listOf("Mapa", "Pesquisar", "Perfil")
+    val context = LocalContext.current
 
     Scaffold(
         bottomBar = {
@@ -80,7 +88,15 @@ fun LaneApp(viewModel: EventoViewModel) {
                     )
                 }
             }
-        }
+        },
+                floatingActionButton = {
+            FloatingActionButton(onClick = {
+                val intent = Intent(context, CreateEventActivity::class.java)
+                context.startActivity(intent)
+            }) {
+                Icon(Icons.Default.Add, contentDescription = "Criar Evento")
+            }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -129,7 +145,7 @@ fun MapContent(viewModel: EventoViewModel) {
                 }
             }
 
-            if (eventos.isEmpty() && !isLoading) {
+            if (eventos.isEmpty()) {
 
                 Box(
                     modifier = Modifier.fillMaxSize(),

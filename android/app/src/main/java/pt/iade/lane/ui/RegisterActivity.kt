@@ -32,18 +32,25 @@ import pt.iade.lane.data.repository.UtilizadorRepository
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.AuthViewModel
 import pt.iade.lane.ui.viewmodels.RegistrationState
+import pt.iade.lane.data.utils.SessionManager
 import java.util.Calendar
 
 class RegisterActivity : ComponentActivity() {
 
     private val utilizadorRepository = UtilizadorRepository()
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 2. INICIALIZA-O AQUI
+        sessionManager = SessionManager(applicationContext)
+
         setContent {
             LaneTheme {
                 val authViewModel: AuthViewModel = viewModel(
-                    factory = AuthViewModel.Factory(utilizadorRepository)
+                    // 3. PASSA-O PARA A FACTORY
+                    factory = AuthViewModel.Factory(utilizadorRepository, sessionManager)
                 )
 
                 val registrationState by authViewModel.registrationState.collectAsState()
@@ -103,7 +110,7 @@ fun RegisterScreen(
 
             val mesFormatado = (month + 1).toString().padStart(2, '0')
             val diaFormatado = day.toString().padStart(2, '0')
-            
+
             dataNascimento = "$year-$mesFormatado-$diaFormatado"
         },
         calendar.get(Calendar.YEAR),

@@ -26,17 +26,62 @@ import pt.iade.lane.ui.theme.LanePurple
 import pt.iade.lane.ui.theme.LaneTheme
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import pt.iade.lane.data.models.LoginRequestDTO
+import pt.iade.lane.data.utils.SessionManager
+import pt.iade.lane.ui.viewmodels.LoginState
+import pt.iade.lane.data.repository.UtilizadorRepository
+import pt.iade.lane.ui.viewmodels.AuthViewModel
+import android.widget.Toast
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 
 class LoginActivity : ComponentActivity() {
+    private val utilizadorRepository = UtilizadorRepository()
+    private lateinit var sessionManager: SessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Inicializa o SessionManager
+        sessionManager = SessionManager(applicationContext)
+
         setContent {
             LaneTheme {
+                // 2. Cria o ViewModel com a Factory (agora com o SessionManager)
+                val authViewModel: AuthViewModel = viewModel(
+                    factory = AuthViewModel.Factory(utilizadorRepository, sessionManager)
+                )
+
+                val loginState by authViewModel.loginState.collectAsState()
+                val context = LocalContext.current
+
+                // 3. Observador que reage ao estado de login
+                LaunchedEffect(loginState) {
+                    when (val state = loginState) {
+                        is LoginState.Success -> {
+                            // SUCESSO! Navega para o Mapa
+                            Toast.makeText(context, "Login com sucesso!", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(context, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
+                        }
+                        is LoginState.Error -> {
+                            // MOSTRA O ERRO
+                            Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+                        }
+                        else -> {} // Idle ou Loading
+                    }
+                }
+
+                // 4. Passa o estado de 'loading' para o ecrã
                 LoginScreen(
+                    isLoading = loginState is LoginState.Loading,
                     onLoginClick = { email, password ->
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
+                        // 5. REMOVEMOS O BYPASS!
+                        // Agora chamamos o ViewModel
+                        val request = LoginRequestDTO(email, password)
+                        authViewModel.loginUtilizador(request)
                     },
                     onRegisterClick = {
                         val intent = Intent(this, RegisterActivity::class.java)
@@ -49,6 +94,7 @@ class LoginActivity : ComponentActivity() {
 }
 @Composable
 fun LoginScreen(
+    isLoading: Boolean,
     onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit
 ) {
@@ -89,24 +135,13 @@ fun LoginScreen(
             )*/
 
             Spacer(modifier = Modifier.height(48.dp))
-
             TextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Nome de utilizador ou email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                // ... (o resto do teu TextField)
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.LightGray,
-                    cursorColor = Color.White,
-                    focusedContainerColor = Color.White.copy(alpha = 0.1f),
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    // ...
                 ),
                 shape = MaterialTheme.shapes.medium
             )
@@ -117,37 +152,33 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Palavra-passe") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
+                // ... (o resto do teu TextField)
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.LightGray,
-                    cursorColor = Color.White,
-                    focusedContainerColor = Color.White.copy(alpha = 0.1f),
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.1f),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    // ...
                 ),
                 shape = MaterialTheme.shapes.medium
             )
 
             Spacer(modifier = Modifier.height(32.dp))
-
             Button(
                 onClick = { onLoginClick(email, password) },
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading, // <-- Desativa o botão se estiver a carregar
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White.copy(alpha = 0.3f)
                 )
             ) {
-                Text("Iniciar Sessão", color = Color.White)
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Iniciar Sessão", color = Color.White)
+                }
             }
 
-            TextButton(onClick = { onRegisterClick() }) {
+            TextButton(
+                onClick = { onRegisterClick() },
+                enabled = !isLoading
+            ) {
                 Text("Não tens uma conta? Regista-te", color = Color.White)
             }
         }
@@ -157,7 +188,11 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    MaterialTheme {
-        LoginScreen(onLoginClick = { _, _ -> }, onRegisterClick = {})
+    LaneTheme {
+        LoginScreen(
+            isLoading = false,
+            onLoginClick = { _, _ -> },
+            onRegisterClick = {}
+        )
     }
 }

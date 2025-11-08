@@ -3,6 +3,9 @@ package pt.iade.lane.data.repository
 import android.util.Log
 import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.network.RetrofitClient
+import pt.iade.lane.data.models.CreateEventDTO
+import pt.iade.lane.data.models.Filtro
+import retrofit2.Response
 
 class EventoRepository {
 
@@ -15,9 +18,9 @@ class EventoRepository {
             emptyList()
         }
     }
-    suspend fun criarEvento(novoEvento: Evento): Evento? {
+    suspend fun criarEvento(request: CreateEventDTO): Evento? {
         return try {
-            val response = apiService.criarEvento(novoEvento)
+            val response = apiService.criarEvento(request)
             if (response.isSuccessful) {
                 response.body()
             } else {
@@ -27,6 +30,20 @@ class EventoRepository {
         } catch (e: Exception) {
             Log.e("EventoRepository", "Exceção ao criar evento: ${e.message}")
             null
+        }
+    }
+    suspend fun getFiltros(): List<Filtro> {
+        return try {
+            val response = apiService.getFiltros()
+            if (response.isSuccessful) {
+                response.body() ?: emptyList()
+            } else {
+                Log.e("EventoRepository", "Falha ao buscar filtros: ${response.code()}")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("EventoRepository", "Exceção ao buscar filtros: ${e.message}")
+            emptyList()
         }
     }
 }

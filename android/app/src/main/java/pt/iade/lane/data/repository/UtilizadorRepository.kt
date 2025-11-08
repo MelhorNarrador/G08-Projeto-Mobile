@@ -4,6 +4,8 @@ import android.util.Log
 import pt.iade.lane.data.models.RegisterRequestDTO
 import pt.iade.lane.data.models.Utilizador
 import pt.iade.lane.data.network.RetrofitClient
+import pt.iade.lane.data.models.LoginRequestDTO
+import pt.iade.lane.data.models.LoginResponseDTO
 
 class UtilizadorRepository {
 
@@ -28,6 +30,21 @@ class UtilizadorRepository {
             }
         } catch (e: Exception) {
             Log.e("UtilizadorRepository", "Exceção ao registar: ${e.message}", e)
+            null
+        }
+    }
+    suspend fun loginUtilizador(request: LoginRequestDTO): LoginResponseDTO? {
+        return try {
+            val response = apiService.loginUtilizador(request)
+
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                Log.e("UtilizadorRepository", "Falha no login: ${response.code()} ${response.message()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UtilizadorRepository", "Exceção no login: ${e.message}", e)
             null
         }
     }

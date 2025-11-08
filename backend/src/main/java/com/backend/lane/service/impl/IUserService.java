@@ -8,18 +8,21 @@ import com.backend.lane.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder; 
 import org.springframework.stereotype.Service;
+import com.backend.lane.domain.LoginRequestDTO;
+import com.backend.lane.domain.LoginResponseDTO;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
 @Service
 public class IUserService implements UserService {
-
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    public IUserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -46,4 +49,20 @@ public class IUserService implements UserService {
     public void deleUser(Integer id) {
         userRepository.deleteById(id);
     }
+    @Override
+    public LoginResponseDTO loginUser(LoginRequestDTO loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getAccount_email())
+                .orElseThrow(() -> new EntityNotFoundException("Utilizador não encontrado"));
+        boolean isPasswordMatch = passwordEncoder.matches(
+                loginRequest.getPassword(),
+                user.getAccount_password_hash()
+        );
+        if (!isPasswordMatch) {
+            throw new SecurityException("Password inválida");
+        }
+        String token = "dummy-token-para-testes-" + user.getAccount_id();
+        return new LoginResponseDTO(token, user.getAccount_id());
+    }
+
 }
+

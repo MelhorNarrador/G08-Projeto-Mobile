@@ -12,19 +12,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // 1. ESTA É A "RECEITA" (BEAN) QUE FALTAVA
+    // Isto diz ao Spring: "Quando alguém pedir um PasswordEncoder,
+    // corre este método e devolve um BCryptPasswordEncoder."
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // 2. Isto configura a segurança da API
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/**").permitAll() 
-                .anyRequest().authenticated() 
-            );
+                .csrf(csrf -> csrf.disable()) // Desativa o CSRF
+                .authorizeHttpRequests(authz -> authz
+                        // Permite acesso a TODOS os teus endpoints /api/**
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().authenticated()
+                );
         return http.build();
     }
 }

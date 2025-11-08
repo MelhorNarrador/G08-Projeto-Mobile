@@ -6,6 +6,10 @@ import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.models.Seguidor
 import pt.iade.lane.data.models.Utilizador
 import pt.iade.lane.data.models.RegisterRequestDTO
+import pt.iade.lane.data.models.LoginRequestDTO
+import pt.iade.lane.data.models.LoginResponseDTO
+import pt.iade.lane.data.models.CreateEventDTO
+
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -29,9 +33,14 @@ interface LaneAppAPIService {
     suspend fun criarEvento(@Body novoEvento: Evento): Response<Evento>
 
     @GET("api/filters/get/filters")
-    suspend fun getFiltros(): List<Filtro>
+    suspend fun getFiltros(): Response<List<Filtro>>
 
     @GET("api/followers/all")
     suspend fun getTodosSeguidores(): List<Seguidor>
+    @POST("api/users/login")
+    suspend fun loginUtilizador(@Body request: LoginRequestDTO): Response<LoginResponseDTO>
+
+    @POST("api/events/create/events")
+    suspend fun criarEvento(@Body request: CreateEventDTO): Response<Evento>
 
 }
