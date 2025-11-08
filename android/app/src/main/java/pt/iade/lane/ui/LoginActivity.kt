@@ -47,7 +47,6 @@ class LoginActivity : ComponentActivity() {
 
         setContent {
             LaneTheme {
-                // 2. Cria o ViewModel com a Factory (agora com o SessionManager)
                 val authViewModel: AuthViewModel = viewModel(
                     factory = AuthViewModel.Factory(utilizadorRepository, sessionManager)
                 )
@@ -55,7 +54,6 @@ class LoginActivity : ComponentActivity() {
                 val loginState by authViewModel.loginState.collectAsState()
                 val context = LocalContext.current
 
-                // 3. Observador que reage ao estado de login
                 LaunchedEffect(loginState) {
                     when (val state = loginState) {
                         is LoginState.Success -> {
@@ -67,19 +65,14 @@ class LoginActivity : ComponentActivity() {
                             finish()
                         }
                         is LoginState.Error -> {
-                            // MOSTRA O ERRO
                             Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
                         }
-                        else -> {} // Idle ou Loading
+                        else -> {}
                     }
                 }
-
-                // 4. Passa o estado de 'loading' para o ecrã
                 LoginScreen(
                     isLoading = loginState is LoginState.Loading,
                     onLoginClick = { email, password ->
-                        // 5. REMOVEMOS O BYPASS!
-                        // Agora chamamos o ViewModel
                         val request = LoginRequestDTO(email, password)
                         authViewModel.loginUtilizador(request)
                     },
