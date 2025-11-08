@@ -42,7 +42,6 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializa o SessionManager
         sessionManager = SessionManager(applicationContext)
 
         setContent {
