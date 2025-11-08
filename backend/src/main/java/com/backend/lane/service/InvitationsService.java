@@ -8,5 +8,5 @@ public interface InvitationsService {
 
     List<Invitations> getAllInvitations();
     Invitations createInvitations(Invitations invitations);
-    void deleteInvitations(Long id);
+    void deleteInvitations(Integer id);
 }

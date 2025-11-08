@@ -13,23 +13,29 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Invitations")
+
+@Table(name = "invitations", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_invitation", columnNames = {"event_id", "sender_id", "receiver_id"})
+})
 public class Invitations {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private String invitations_id;
-    @Column(nullable = false)
+    @Column(name = "invitations_id")
+    private Integer invitations_id; 
+
+    @Column(name = "event_id", nullable = false)
     private Integer event_id;
-    @Column(nullable = false)
+
+    @Column(name = "sender_id", nullable = false)
     private Integer sender_id;
-    @Column(nullable = false)
+
+    @Column(name = "receiver_id", nullable = false)
     private Integer receiver_id;
-    @Column(name = "status",nullable = false, length = 20)
+
+    @Column(name = "status", nullable = false, length = 20)
     private String status = "pending";
-    @Column(updatable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private LocalDateTime send_at;
-    //event_id, sender_id, receiver_id should be unique together
-    @Column(unique = true, nullable = false)
-    private String unique_triplet = event_id + "_" + sender_id + "_" + receiver_id;
+
+    @Column(name = "sent_at", updatable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    private LocalDateTime sent_at;
+
 }

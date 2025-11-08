@@ -26,7 +26,7 @@ public class InvitationsController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteInvitations (@PathVariable Long id){
+    public void deleteInvitations (@PathVariable Integer id){
         invitationsService.deleteInvitations(id);
     }
 }

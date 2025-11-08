@@ -19,7 +19,7 @@ public class IFiltersService implements FiltersService {
     }
 
     @Override
-    public void deleteFilters(Long id) {
+    public void deleteFilters(Integer id) {
 
     }
 }

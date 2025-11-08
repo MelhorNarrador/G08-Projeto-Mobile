@@ -34,13 +34,13 @@ class LoginActivity : ComponentActivity() {
             LaneTheme {
                 LoginScreen(
                     onLoginClick = { email, password ->
-                        // "BYPASS" TEMPORÁRIO
                         val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)
                         finish()
                     },
                     onRegisterClick = {
-                        // No futuro, navegaria para a RegisterActivity
+                        val intent = Intent(this, RegisterActivity::class.java)
+                        startActivity(intent)
                     }
                 )
             }

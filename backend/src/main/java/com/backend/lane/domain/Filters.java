@@ -7,16 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "Filters")
+@Table(name = "filters")
 public class Filters {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "filters_id")
     private Integer filters_id;
-    @Column(nullable = false, length = 50, unique = true)
+
+    @Column(name = "filters_name", nullable = false, length = 50, unique = true)
     private String filters_name;
 }

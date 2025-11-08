@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class IEventParticipants implements EParticipantsService {
     @Override
-    public void addParticipantToEvent(Long event_id, Long participant_id) {
+    public void addParticipantToEvent(Integer event_id, Integer participant_id) {
 
     }
 
     @Override
-    public void deleteParticipantFromEvent(Long event_id, Long participant_id) {
+    public void deleteParticipantFromEvent(Integer event_id, Integer participant_id) {
 
     }
 }

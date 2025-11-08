@@ -14,32 +14,47 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Events")
+@Table(name = "events")
 public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long event_id;
-    @Column(nullable = false, length = 150)
-    private String event_title;
-    @Column(columnDefinition = "text")
-    private String event_description;
-    @Column(nullable = false, length = 20)
-    private String event_visibility;
-    private Integer event_category_id;
-    private Integer event_creator_id;
-    @Column(nullable = false, length = 255)
-    private String location;
-    private Double event_latitude;
-    private Double event_longitude;
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime event_date;
-    @Column(precision = 10, scale = 2)
-    private BigDecimal event_price =
-            BigDecimal.ZERO;
-    @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime created_at =
-            LocalDateTime.now();
-    @Column(nullable = false)
-    private Integer max_participants;
+    @Column(name = "event_id")
+    private Integer event_id; 
 
+    @Column(name = "event_title", nullable = false, length = 150)
+    private String event_title;
+
+    @Column(name = "event_description", columnDefinition = "text")
+    private String event_description;
+
+    @Column(name = "event_visibility", nullable = false, length = 20)
+    private String event_visibility;
+
+    @Column(name = "event_category_id")
+    private Integer event_category_id;
+
+    @Column(name = "event_creator_id")
+    private Integer event_creator_id;
+
+    @Column(name = "location", length = 255) 
+    private String location;
+
+    @Column(name = "event_latitude", precision = 9, scale = 6)
+    private BigDecimal event_latitude; 
+
+    @Column(name = "event_longitude", precision = 9, scale = 6)
+    private BigDecimal event_longitude; 
+
+    @Column(name = "event_date", nullable = false)
+    private LocalDateTime event_date;
+
+    @Column(name = "event_price", precision = 10, scale = 2)
+    private BigDecimal event_price = BigDecimal.ZERO;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime created_at = LocalDateTime.now();
+
+    @Column(name = "max_participants", nullable = false)
+    private Integer max_participants;
 }

@@ -9,45 +9,47 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
+import java.time.LocalDate; 
 
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Users")
+@Table(name = "user_details")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long account_id;
-    @NotBlank
-    @NotNull
-    @Column(nullable = false, length = 100)
+    @Column(name = "account_id")
+    private Integer account_id;
+
+    @Column(name = "account_name", nullable = false, length = 100)
     private String account_name;
-    @NotBlank
-    @NotNull
-    @Column(nullable = false, length = 50)
+
+    @Column(name = "account_username", nullable = false, length = 50, unique = true)
     private String account_username;
-    @NotBlank
-    @NotNull
-    @Column(nullable = false, length = 120)
+
+    @Column(name = "account_email", nullable = false, length = 120, unique = true)
     @Email
     private String account_email;
-    @NotBlank
-    @NotNull
-    @Column(nullable = false, length = 255)
-    private String account_password_hash;
-    @Column(columnDefinition = "text")
-    private String account_bio;
-    @Column(columnDefinition = "text")
-    private String account_photo_url;
-    @Column(name = "account_verified", nullable = false)
-    private boolean account_verified =
-            false;
-    private Date account_dob;
-    @Column(length = 30)
-    private String gender;
 
+    @Column(name = "account_password_hash", nullable = false, length = 255)
+    private String account_password_hash;
+
+    @Column(name = "account_bio", columnDefinition = "text")
+    private String account_bio;
+
+    @Column(name = "account_photo_url", columnDefinition = "text")
+    private String account_photo_url;
+
+    @Column(name = "account_verified", nullable = false)
+    private boolean account_verified = false;
+
+    @Column(name = "account_dob") 
+    private LocalDate account_dob;
+
+    @Enumerated(EnumType.STRING) 
+    @Column(name = "account_gender", length = 30)
+    private Gender account_gender; 
 }

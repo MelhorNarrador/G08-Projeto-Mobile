@@ -4,9 +4,12 @@ import com.backend.lane.domain.User;
 
 import java.util.List;
 
-public interface UserService {
+import com.backend.lane.domain.RegisterRequestDTO; 
 
+public interface UserService {
     List<User> getAllUsers();
-    User creatUser (User user);
-    void deleUser (Long id);
+    
+    User creatUser (RegisterRequestDTO registerRequest);
+    
+    void deleUser (Integer id);
 }

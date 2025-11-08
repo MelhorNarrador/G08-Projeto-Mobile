@@ -8,5 +8,5 @@ public interface FiltersService {
 
     List<Filters> getAllFilters();
     Filters createFilters (Filters filters);
-    void deleteFilters (Long id);
+    void deleteFilters (Integer id);
 }

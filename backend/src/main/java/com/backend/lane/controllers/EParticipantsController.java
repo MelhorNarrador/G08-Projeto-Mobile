@@ -14,12 +14,12 @@ public class EParticipantsController {
 
     @PostMapping("/add")
     public String addParticipant() {
-        eParticipantsService.addParticipantToEvent(1L, 1L);
+        eParticipantsService.addParticipantToEvent(1, 1);
         return "Participant added";
     }
 
     @DeleteMapping("/{id}")
-    public String deleteParticipant(@PathVariable Long id) {
+    public String deleteParticipant(@PathVariable Integer id) {
         return "Participant deleted";
     }
 }

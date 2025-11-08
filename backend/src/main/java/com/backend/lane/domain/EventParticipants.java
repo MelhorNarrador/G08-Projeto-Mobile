@@ -9,21 +9,21 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "EventParticipants")
+@Table(name = "event_participants", uniqueConstraints = {
+    @UniqueConstraint(name = "unique_participation", columnNames = {"event_id", "user_id"})
+})
 public class EventParticipants {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "participant_id")
     private Integer participant_id;
-    @Column(nullable = false)
+
+    @Column(name = "event_id", nullable = false)
     private Integer event_id;
-    @Column(nullable = false)
+
+    @Column(name = "user_id", nullable = false)
     private Integer user_id;
-    //event_id and user_id should be unique together
-    @Column(name = "joined_at",nullable = false, updatable = false ,columnDefinition = "TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP")
+    
+    @Column(name = "joined_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime joined_at;
 }

@@ -1,7 +1,6 @@
 package pt.iade.lane.data.models
 
 import com.google.gson.annotations.SerializedName
-
 data class Utilizador(
 
     @SerializedName("account_id")
@@ -23,5 +22,11 @@ data class Utilizador(
     val fotoUrl: String?,
 
     @SerializedName("account_verified")
-    val isVerificado: Boolean
+    val isVerificado: Boolean,
+
+    @SerializedName("account_dob")
+    val dataNascimento: String?,
+
+    @SerializedName("gender")
+    val genero: String?
 )

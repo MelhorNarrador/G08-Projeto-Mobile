@@ -7,9 +7,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    // 1. ALTERA ISTO: Coloca aqui a URL base da tua API
-    // Ex: "http://192.168.1.10:8080/api/" ou "https://api.tuadominio.com/"
-    // Tem de terminar sempre com uma barra "/"!
     private const val BASE_URL = "http://10.0.2.2:8080/"
 
 

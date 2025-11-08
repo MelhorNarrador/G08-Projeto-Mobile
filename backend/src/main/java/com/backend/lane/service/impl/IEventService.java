@@ -21,7 +21,7 @@ public class IEventService implements EventService {
     }
 
     @Override
-    public void deleteEvent(Long id) {
+    public void deleteEvent(Integer id) {
 
     }
 }

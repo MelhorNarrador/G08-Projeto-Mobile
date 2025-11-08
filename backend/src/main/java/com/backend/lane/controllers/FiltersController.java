@@ -26,7 +26,7 @@ public class FiltersController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFilters (@PathVariable Long id){
+    public void deleteFilters (@PathVariable Integer id){
         filtersService.deleteFilters(id);
     }
 }

@@ -34,6 +34,11 @@
             android:label="Lane"
             android:theme="@style/Theme.Lane">
         </activity>
+        <activity
+            android:name=".ui.RegisterActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Lane">
+        </activity>
     </application>
 
 </manifest>

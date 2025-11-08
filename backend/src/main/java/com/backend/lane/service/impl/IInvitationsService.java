@@ -19,7 +19,7 @@ public class IInvitationsService implements InvitationsService {
     }
 
     @Override
-    public void deleteInvitations(Long id) {
+    public void deleteInvitations(Integer id) {
 
     }
 }
