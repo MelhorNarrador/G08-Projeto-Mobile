@@ -43,13 +43,11 @@ class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 2. INICIALIZA-O AQUI
         sessionManager = SessionManager(applicationContext)
 
         setContent {
             LaneTheme {
                 val authViewModel: AuthViewModel = viewModel(
-                    // 3. PASSA-O PARA A FACTORY
                     factory = AuthViewModel.Factory(utilizadorRepository, sessionManager)
                 )
 
