@@ -210,9 +210,9 @@ Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total
 
 | Membro                 | Contributos Principais                                                                                                                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Pedro António**      | Desenvolvimento da **aplicação Android** em Kotlin, integração da **base de dados PostgreSQL** e ligação com o backend. Responsável pela interface de utilizador, navegação entre ecrãs e testes da app. |
+| **Pedro António**      | Desenvolvimento da **aplicação Android** em Kotlin, integração da **base de dados PostgreSQL**, ligação com o backend e elaboração da documentação técnica da aplicação.. Responsável pela interface de utilizador, navegação entre ecrãs e testes da app. |
 | **Filomeno Sabino**    | Desenvolvimento do **backend** em Spring Boot, criação das rotas REST, lógica de autenticação, ligação à base de dados e integração da API de mapas. Responsável também pela documentação dos endpoints. |
-| **Francisco Abecasis** |                                                                                                            |
+| **Francisco Abecasis** | Elaboração dos diagramas de classes, dicionário de dados, personas e diagramas complementares. Responsável pela parte gráfica do relatório e pela organização visual dos elementos técnicos.                                                                                                       |
 | **Savio Casimira**     |                                                                                                                               |
 | **Gianni Lopes**       |                                                                                |
 
