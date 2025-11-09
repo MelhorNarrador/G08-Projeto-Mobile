@@ -202,7 +202,7 @@ A tabela seguinte resume os principais *endpoints* da API REST implementados no 
 
 O desenvolvimento da Lane encontra-se numa fase sólida, com o MVP funcional e integração entre os principais módulos. A integração total das três camadas (Frontend Android/Compose, Backend Spring Boot, e Base de Dados PostgreSQL) foi um marco complexo, mas está agora funcional.
 
-Os fluxos de **Registo de Utilizador** (com *hashing* de password via `BCrypt`) e **Login de Utilizador** (com gestão de sessão) estão a funcionar e ligados ao *backend*. A app consegue agora criar e (em breve) visualizar eventos (`POST /api/events/create/events`), e ir buscar dados dinâmicos da API, como as categorias de filtros (`GET /api/filters/get/filters`).
+Os fluxos de **Registo de Utilizador** (com *hashing* de password via `BCrypt`) e **Login de Utilizador** (com gestão de sessão) estão a funcionar e ligados ao *backend*. A app consegue agora criar eventos e ir buscar dados dinâmicos da API, como as categorias de filtros.
 
 Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total com *tokens JWT*, finalizar a lógica de *geocoding* no *backend* e desenvolver as restantes funcionalidades sociais, como o ecrã de perfil e a interação com o mapa.
 
