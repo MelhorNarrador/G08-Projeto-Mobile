@@ -82,6 +82,7 @@ A **Lane** centraliza este processo, promovendo a **proximidade social** e a **a
 **Descrição:**  
 A arquitetura segue o modelo **Cliente–Servidor**, com comunicação via **API RESTful**.  
 O backend gere autenticação, eventos e utilizadores, enquanto o frontend apresenta os dados em tempo real através de endpoints.
+Uma decisão de arquitetura chave foi a gestão das relações sociais. A regra de negócio define 'amizade' como um seguimento mútuo. Para evitar redundância de dados e problemas de integridade, a tabela friends (Tabela que iria gerir o estado de amizade na primeira versão da BD) foi eliminada. A tabela followers é agora a única fonte da verdade, e o estado de 'amizade' é um dado calculado dinamicamente pelo backend (API) sempre que a app o solicita.
 
 ---
 
@@ -109,21 +110,26 @@ O backend gere autenticação, eventos e utilizadores, enquanto o frontend apres
 
 ### Requisitos Não Funcionais
 - Interface intuitiva e responsiva  
-- Segurança via JWT Tokens  
+- Segurança de Autenticação via Spring Security 
 - Conformidade com o RGPD
 - Chat privado
+
+### 6.2 Requisitos Não Funcionais (Análise de Recursos)
+A natureza da "Lane" como uma app baseada em mapas e dados em tempo real implica um consumo de recursos significativo:
+* **No Cliente (App):** O consumo de **Bateria** e **GPS** é o ponto mais crítico, devido à necessidade de renderizar o Google Maps SDK e obter a localização do utilizador para calcular distâncias. O consumo de **Dados Móveis** também é relevante, para descarregar os "azulejos" do mapa e as listas de eventos da API.
+* **No Servidor (Custos):** A app irá incorrer em custos de *hosting* (para o *backend* Spring Boot e a BD PostgreSQL) e custos de **API da Google Maps Platform**. Especificamente, as chamadas de **Geocoding** (para converter endereços de eventos em coordenadas) e **Directions** (para calcular rotas) são feitas pelo *backend* por razões de segurança, e serão debitadas (embora cobertas, numa fase inicial, pelo crédito mensal de 258€ da Google).
 
 ---
 
 ## 7. Mockups e Interfaces
 
-Incluem-se abaixo os principais ecrãs do protótipo:
+Incluem-se abaixo os principais ecrãs da versão alfa:
 
 ![Login](imgs/Ecrã_Log_In.png)  
 ![Mapa de eventos](imgs/Mapa.png)  
 ![Criação de evento](imgs/Criação_de_Eventos_1.png)  
 
-[Ver protótipo completo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)
+[Ver protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)
 
 ---
 
@@ -147,19 +153,19 @@ Nesta fase, foram concluídas as seguintes tarefas:
 
 ---
 
-## 9. Diagrama de Classes
+## 9. Diagrama de Classes (Modelo Conceptual)
 
 ![Diagrama de classes](imgs/diagrama_classes.png)
 
-Descrição: O diagrama de classes reflete as principais entidades (Utilizador, Evento, Convite, seguidor) e as suas relações, permitindo uma visão clara da estrutura da aplicação.
+**Descrição:** O diagrama de classes reflete as principais entidades (Utilizador, Evento, Convite, Seguidor) e as suas relações. Uma decisão de arquitetura chave foi a gestão das relações sociais: a regra de negócio define 'amizade' como um seguimento mútuo. Para evitar redundância de dados, a tabela `friends` foi eliminada. A tabela `followers` é agora a única fonte da verdade, e o estado de 'amizade' é um dado calculado dinamicamente pelo *backend* (API).
 
 ---
 
-## 10. Dicionário de Dados
+## 10. Dicionário de Dados (Guia de Dados)
 
-## 10. Dicionário de Dados
+Esta secção detalha a estrutura física (Modelo Físico) das tabelas implementadas na base de dados PostgreSQL, cumprindo os requisitos de um "Dicionário de Dados".
 
-| Tabela | Campos Principais | Descrição|
+| Tabela | Campos Principais | Descrição |
 |---|---|---|
 | `user_details` | `account_id` (PK), `account_username`, `account_email`, `account_password_hash`, `account_dob`, `account_gender` | Armazena os dados do utilizador, incluindo `UNIQUE` constraints para username/email e `CHECK` para género. |
 | `events` | `event_id` (PK), `event_title`, `event_creator_id` (FK), `event_category_id` (FK), `max_participants`, `event_latitude` | Armazena todos os eventos. Inclui o limite de participantes e as coordenadas de GPS. |
@@ -167,27 +173,37 @@ Descrição: O diagrama de classes reflete as principais entidades (Utilizador, 
 | `followers` | `follow_id` (PK), `follower_id` (FK), `following_id` (FK) | **Tabela central da lógica social.** Armazena a relação "seguir". Usada para *calcular* amizades (seguimento mútuo). |
 | `event_participants` | `participant_id` (PK), `event_id` (FK), `user_id` (FK) | Tabela de junção que regista quem "aderiu" a um evento (o botão "Participar"). |
 | `invitations` | `invitations_id` (PK), `event_id` (FK), `sender_id`, `receiver_id`, `status` | Gere os convites para eventos privados, com um `status` (`pending`, `accepted`, `rejected`). |
+
 ---
 
 ## 11. Documentação REST
 
+A tabela seguinte resume os principais *endpoints* da API REST implementados no *backend* (Spring Boot) para suportar as funcionalidades do MVP (Protótipo Funcional Mínimo).
+
+| Verbo | Endpoint | DTO (Request Body) | Resposta | Função |
+|---|---|---|---|---|
+| `POST` | `/api/users/users` | `RegisterRequestDTO` | `User` | **Registar** um novo utilizador. |
+| `POST` | `/api/users/login` | `LoginRequestDTO` | `LoginResponseDTO` | **Autenticar** um utilizador e devolver um token. |
+| `GET` | `/api/events/events` | - | `List<Event>` | Obter a lista de todos os eventos. |
+| `POST`| `/api/events/create/events` | `CreateEventDTO` | `Event` | **Criar** um novo evento. |
+| `GET` | `/api/filters/get/filters` | - | `List<Filters>` | Obter as categorias para o *dropdown*. |
+
 ---
 
-12. Conclusão
-O desenvolvimento da Lane encontra-se numa fase sólida, com o MVP funcional e integração entre os principais módulos.
-A aplicação demonstra potencial para evoluir numa plataforma social de eventos centralizada e segura.
-Os próximos passos passam por otimizar a experiência do utilizador, melhorar a segurança dos dados e expandir funcionalidades sociais.
+## 12. Conclusão
 
-13. Bibliografia
-Eventbrite
+O desenvolvimento da Lane encontra-se numa fase sólida, com o MVP funcional e integração entre os principais módulos. A integração total das três camadas (Frontend Android/Compose, Backend Spring Boot, e Base de Dados PostgreSQL) foi um marco complexo, mas está agora funcional.
 
-Facebook Events
+Os fluxos de **Registo de Utilizador** (com *hashing* de password via `BCrypt`) e **Login de Utilizador** (com gestão de sessão) estão a funcionar e ligados ao *backend*. A app consegue agora criar e (em breve) visualizar eventos (`POST /api/events/create/events`), e ir buscar dados dinâmicos da API, como as categorias de filtros (`GET /api/filters/get/filters`).
 
-Meetup
+Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total com *tokens JWT*, finalizar a lógica de *geocoding* no *backend* e desenvolver as restantes funcionalidades sociais, como o ecrã de perfil e a interação com o mapa.
 
-Google Maps API
+## 13. Bibliografia e Referências
 
-Jetpack Compose Docs
-
-
+* **Google (2025).** *Documentação Oficial do Jetpack Compose*. [https://developer.android.com/jetpack/compose](https://developer.android.com/jetpack/compose)
+* **Google (2025).** *Google Maps SDK for Android Documentation*.[https://developers.google.com/maps/documentation/android-sdk/](https://developers.google.com/maps/documentation/android-sdk/)
+* **Spring (2025).** *Spring Boot Documentation*.[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
+* **Spring (2025).** *Spring Security - Password Storage (BCrypt)*.[https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
+* **PostgreSQL (2025).** *Documentação Oficial do PostgreSQL*.[https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)
+* **Square (2025).** *Retrofit: A type-safe HTTP client for Android and Java*.[https://square.github.io/retrofit/](https://square.github.io/retrofit/)
 ---
