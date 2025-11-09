@@ -157,14 +157,16 @@ Descrição: O diagrama de classes reflete as principais entidades (Utilizador, 
 
 ## 10. Dicionário de Dados
 
-| Tabela | Campos principais | Descrição |
-|--------|------------------|------------|
-| `users` | id, name, email, verified | Dados de utilizadores |
-| `events` | id, title, type, location_id | Registo de eventos |
-| `invites` | id, event_id, user_id | Convites privados |
-| `locations` | id, latitude, longitude | Dados geográficos |
-| `verification` | id, user_id, status | Processo de verificação |
+## 10. Dicionário de Dados
 
+| Tabela | Campos Principais | Descrição|
+|---|---|---|
+| `user_details` | `account_id` (PK), `account_username`, `account_email`, `account_password_hash`, `account_dob`, `account_gender` | Armazena os dados do utilizador, incluindo `UNIQUE` constraints para username/email e `CHECK` para género. |
+| `events` | `event_id` (PK), `event_title`, `event_creator_id` (FK), `event_category_id` (FK), `max_participants`, `event_latitude` | Armazena todos os eventos. Inclui o limite de participantes e as coordenadas de GPS. |
+| `filters` | `filters_id` (PK), `filters_name` | Tabela de "lookup" para as categorias dos eventos (ex: "Música", "Cultural"). |
+| `followers` | `follow_id` (PK), `follower_id` (FK), `following_id` (FK) | **Tabela central da lógica social.** Armazena a relação "seguir". Usada para *calcular* amizades (seguimento mútuo). |
+| `event_participants` | `participant_id` (PK), `event_id` (FK), `user_id` (FK) | Tabela de junção que regista quem "aderiu" a um evento (o botão "Participar"). |
+| `invitations` | `invitations_id` (PK), `event_id` (FK), `sender_id`, `receiver_id`, `status` | Gere os convites para eventos privados, com um `status` (`pending`, `accepted`, `rejected`). |
 ---
 
 ## 11. Documentação REST
