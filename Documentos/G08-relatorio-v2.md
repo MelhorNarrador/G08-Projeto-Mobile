@@ -1,4 +1,4 @@
-![Logo LADE](Documentos/imgs/logo_lane.png)
+![Logo LADE](imgs/logo_lane.png)
 
 # Relatório da 2.ª Entrega
 ### Projeto de Desenvolvimento Móvel – **Lane**
