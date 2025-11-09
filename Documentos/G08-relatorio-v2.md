@@ -159,11 +159,9 @@ Nesta fase, foram concluídas as seguintes tarefas:
 - Finalização de todos os ecrãs da app 
 - Integração completa do mapa
 
-[Gráfico de Gantt]
-
 ---
 
-## 9. Diagrama de Classes (Modelo Conceptual)
+## 9. Diagrama de Classes 
 
 ![Diagrama de classes](imgs/Diagrama-de-classes.jpg)
 
