@@ -204,6 +204,6 @@ Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total
 * **Google.** *Google Maps SDK for Android Documentation*.[https://developers.google.com/maps/documentation/android-sdk/](https://developers.google.com/maps/documentation/android-sdk/)
 * **Spring.** *Spring Boot Documentation*.[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
 * **Spring.** *Spring Security - Password Storage (BCrypt)*.[https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
-* **PostgreSQL.** *Documentação Oficial do PostgreSQL*.[https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)
-* **Square.** *[Retrofit: A type-safe HTTP client for Android and Java]*.(https://square.github.io/retrofit/)
+* **PostgreSQL.** [*Documentação Oficial do PostgreSQL.*](https://www.postgresql.org/docs/)
+* **Square.** [*Retrofit: A type-safe HTTP client for Android and Java.*](https://square.github.io/retrofit/)
 ---
