@@ -215,8 +215,8 @@ Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total
 | **Pedro António**      | Desenvolvimento da **aplicação Android** em Kotlin, integração da **base de dados PostgreSQL**, ligação com o backend e elaboração da documentação técnica da aplicação.. Responsável pela interface de utilizador, navegação entre ecrãs e testes da app. |
 | **Filomeno Sabino**    | Desenvolvimento do **backend** em Spring Boot, criação das rotas REST, lógica de autenticação e ligação à base de dados. Responsável também pela documentação dos endpoints. |
 | **Francisco Abecasis** | Elaboração dos diagramas de classes, dicionário de dados, personas e diagramas complementares. Responsável pela parte gráfica do relatório e pela organização visual dos elementos técnicos.                                                                                                       |
-| **Savio Casimira**     |                                                                                                                               |
-| **Gianni Lopes**       |                                                                                |
+| **Savio Casimira**     | Desenvolvimento de novos ecrãs do frontend, incluindo componentes visuais e interações da aplicação.                                                                                                                              |
+| **Gianni Lopes**       | Implementação de componentes adicionais do frontend e otimização da experiência do utilizador (UX). Encarregue de ajustar o design dos ecrãs às diretrizes do protótipo e de assegurar a consistência visual e funcional da aplicação.                                                                               |
 
 
 ---
