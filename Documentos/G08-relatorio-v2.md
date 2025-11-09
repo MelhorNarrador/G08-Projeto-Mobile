@@ -161,7 +161,7 @@ Nesta fase, foram concluídas as seguintes tarefas:
 
 ---
 
-## 9. Diagrama de Classes Guia de Dados
+## 9. Diagrama de Classes
 
 ![Diagrama de classes](imgs/Diagrama-de-classes.jpg)
 
