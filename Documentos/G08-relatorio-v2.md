@@ -135,9 +135,9 @@ A natureza da "Lane" como uma app baseada em mapas e dados em tempo real implica
 
 Incluem-se abaixo os principais ecrãs da versão alfa:
 
-![Login](imgs/Ecrã_Log_In.png)  
-![Mapa de eventos](imgs/Mapa.png)  
-![Criação de evento](imgs/Criação_de_Eventos_1.png)  
+![Login](imgs/Login-Lane-alfa.png)  
+![Mapa de eventos](imgs/Mapa-Lane-alfa.png)  
+![Criação de evento](imgs/Cevento-Lane-alfa.png)  
 
 [Ver protótipo no Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)
 
@@ -165,7 +165,7 @@ Nesta fase, foram concluídas as seguintes tarefas:
 
 ## 9. Diagrama de Classes (Modelo Conceptual)
 
-![Diagrama de classes](imgs/diagrama_classes.png)
+![Diagrama de classes](imgs/Diagrama-de-classes.jpg)
 
 **Descrição:** O diagrama de classes reflete as principais entidades (Utilizador, Evento, Convite, Seguidor) e as suas relações. Uma decisão de arquitetura chave foi a gestão das relações sociais: a regra de negócio define 'amizade' como um seguimento mútuo. Para evitar redundância de dados, a tabela `friends` foi eliminada. A tabela `followers` é agora a única fonte da verdade, e o estado de 'amizade' é um dado calculado dinamicamente pelo *backend* (API).
 
