@@ -12,4 +12,6 @@ Este repositório contém o desenvolvimento da aplicação **Lane**, um projeto 
 
 ## Estrutura
 - **/Documentos** → Relatório, PDF, imagens  
-- **/src** → Código da aplicação (quando começar o desenvolvimento) 
+- **/android** → Código da aplicação frontend
+- **/backend** → Código da API backend
+- **/sql** → Ficheiros para creação da base de dados com, create, populate e queries de exemplo
