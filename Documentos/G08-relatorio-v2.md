@@ -208,6 +208,8 @@ Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total
 
 ---
 
+### 13. Divisão de Tarefas
+
 | Membro                 | Contributos Principais                                                                                                                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Pedro António**      | Desenvolvimento da **aplicação Android** em Kotlin, integração da **base de dados PostgreSQL**, ligação com o backend e elaboração da documentação técnica da aplicação.. Responsável pela interface de utilizador, navegação entre ecrãs e testes da app. |
