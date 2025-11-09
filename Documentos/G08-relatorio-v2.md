@@ -131,7 +131,7 @@ A natureza da "Lane" como uma app baseada em mapas e dados em tempo real implica
 
 ---
 
-## 7. Mockups e Interfaces
+## 7. Interfaces
 
 Incluem-se abaixo os principais ecrãs da versão alfa:
 
