@@ -73,7 +73,9 @@ A **Lane** centraliza este processo, promovendo a **proximidade social** e a **a
 
 ---
 
-##Personas
+### Personas
+
+![Persona](imgs/Persona1.jpg)
 
 ---
 
