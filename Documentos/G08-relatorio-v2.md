@@ -200,10 +200,10 @@ Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total
 
 ## 13. Bibliografia e Referências
 
-* **Google (2025).** *Documentação Oficial do Jetpack Compose*. [https://developer.android.com/jetpack/compose](https://developer.android.com/jetpack/compose)
-* **Google (2025).** *Google Maps SDK for Android Documentation*.[https://developers.google.com/maps/documentation/android-sdk/](https://developers.google.com/maps/documentation/android-sdk/)
-* **Spring (2025).** *Spring Boot Documentation*.[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
-* **Spring (2025).** *Spring Security - Password Storage (BCrypt)*.[https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
-* **PostgreSQL (2025).** *Documentação Oficial do PostgreSQL*.[https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)
-* **Square (2025).** *Retrofit: A type-safe HTTP client for Android and Java*.[https://square.github.io/retrofit/](https://square.github.io/retrofit/)
+* **Google.** *Documentação Oficial do Jetpack Compose*. [https://developer.android.com/jetpack/compose](https://developer.android.com/jetpack/compose)
+* **Google.** *Google Maps SDK for Android Documentation*.[https://developers.google.com/maps/documentation/android-sdk/](https://developers.google.com/maps/documentation/android-sdk/)
+* **Spring.** *Spring Boot Documentation*.[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
+* **Spring.** *Spring Security - Password Storage (BCrypt)*.[https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
+* **PostgreSQL.** *Documentação Oficial do PostgreSQL*.[https://www.postgresql.org/docs/](https://www.postgresql.org/docs/)
+* **Square.** *[Retrofit: A type-safe HTTP client for Android and Java]*.(https://square.github.io/retrofit/)
 ---
