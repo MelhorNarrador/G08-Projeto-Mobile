@@ -161,7 +161,7 @@ Nesta fase, foram concluídas as seguintes tarefas:
 
 ---
 
-## 9. Diagrama de Classes 
+## 9. Diagrama de Classes Guia de Dados
 
 ![Diagrama de classes](imgs/Diagrama-de-classes.jpg)
 
@@ -206,7 +206,20 @@ Os fluxos de **Registo de Utilizador** (com *hashing* de password via `BCrypt`) 
 
 Os próximos passos (3ª entrega) focar-se-ão em implementar a segurança total com *tokens JWT*, finalizar a lógica de *geocoding* no *backend* e desenvolver as restantes funcionalidades sociais, como o ecrã de perfil e a interação com o mapa.
 
-## 13. Bibliografia e Referências
+---
+
+| Membro                 | Contributos Principais                                                                                                                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Pedro António**      | Desenvolvimento da **aplicação Android** em Kotlin, integração da **base de dados PostgreSQL** e ligação com o backend. Responsável pela interface de utilizador, navegação entre ecrãs e testes da app. |
+| **Filomeno Sabino**    | Desenvolvimento do **backend** em Spring Boot, criação das rotas REST, lógica de autenticação, ligação à base de dados e integração da API de mapas. Responsável também pela documentação dos endpoints. |
+| **Francisco Abecasis** |                                                                                                            |
+| **Savio Casimira**     |                                                                                                                               |
+| **Gianni Lopes**       |                                                                                |
+
+
+---
+
+## 14. Bibliografia e Referências
 
 * **Google.** [*Documentação Oficial do Jetpack Compose.*](https://developer.android.com/jetpack/compose)
 * **Google.** [*Google Maps SDK for Android Documentation.*](https://developers.google.com/maps/documentation/android-sdk/)
