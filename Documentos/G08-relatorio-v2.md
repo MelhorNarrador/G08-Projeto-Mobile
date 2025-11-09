@@ -48,7 +48,7 @@ A **Lane** centraliza este processo, promovendo a **proximidade social** e a **a
 
 ---
 
-## 4. Casos de Utilização do Objeto Core e personas
+## 4. Casos de Utilização do Objeto Core e Personas
 
 ### Caso 1 – Criar um evento privado
 
