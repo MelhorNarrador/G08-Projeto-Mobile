@@ -27,7 +27,7 @@ aplicações móveis, geolocalização, eventos, convites digitais, perfis verif
 
 A aplicação **Lane** visa facilitar a descoberta e partilha de eventos próximos, permitindo que os utilizadores possam **criar, explorar e participar** em eventos de forma simples e intuitiva.  
 Na **primeira entrega**, foram definidos o conceito, público-alvo, arquitetura e mockups base.  
-Nesta **segunda entrega**, o foco foi o **desenvolvimento do protótipo funcional mínimo**, incluindo **criação e visualização de eventos**, **login**, e **integração inicial com APIs externas**.
+Nesta **segunda entrega**, o foco foi o **desenvolvimento do protótipo funcional mínimo**, incluindo **criação de eventos**, **login**, e **integração inicial com APIs externas**.
 
 ---
 
