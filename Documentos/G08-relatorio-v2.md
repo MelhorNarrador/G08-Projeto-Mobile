@@ -1,5 +1,3 @@
-![Logo LADE](imgs/logo_lane.png)
-
 # Relatório da 2.ª Entrega
 ### Projeto de Desenvolvimento Móvel – **Lane**
 
@@ -13,6 +11,10 @@
 **Figma:** [Protótipo Figma](https://www.figma.com/make/vswsO7IQaQb8flOO56HPa4/Lane?node-id=0-1&p=f&t=6yDjtiKhbPivRkoO-0&fullscreen=1)  
 **ClickUp:** [Espaço ClickUp](https://app.clickup.com/90151662103/v/s/90156861389)  
 **GitHub:** [Repositório do Projeto](https://github.com/MelhorNarrador/G08-Projeto-Mobile.git)  
+
+---
+
+![Logo LADE](imgs/logo_lane.png)
 
 ---
 
