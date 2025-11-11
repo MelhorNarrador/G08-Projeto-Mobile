@@ -1,0 +1,60 @@
+package com.backend.lane.domain;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "events")
+public class Event {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_id")
+    private Integer event_id; 
+
+    @Column(name = "event_title", nullable = false, length = 150)
+    private String event_title;
+
+    @Column(name = "event_description", columnDefinition = "text")
+    private String event_description;
+
+    @Column(name = "event_visibility", nullable = false, length = 20)
+    private String event_visibility;
+
+    @Column(name = "event_category_id")
+    private Integer event_category_id;
+
+    @Column(name = "event_creator_id")
+    private Integer event_creator_id;
+
+    @Column(name = "location", length = 255) 
+    private String location;
+
+    @Column(name = "event_latitude", precision = 9, scale = 6)
+    private BigDecimal event_latitude; 
+
+    @Column(name = "event_longitude", precision = 9, scale = 6)
+    private BigDecimal event_longitude; 
+
+    @Column(name = "event_date", nullable = false)
+    private LocalDateTime event_date;
+
+    @Column(name = "event_price", precision = 10, scale = 2)
+    private BigDecimal event_price = BigDecimal.ZERO;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime created_at = LocalDateTime.now();
+
+    @Column(name = "max_participants", nullable = false)
+    private Integer max_participants;
+}
