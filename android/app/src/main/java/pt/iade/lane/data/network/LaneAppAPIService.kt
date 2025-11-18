@@ -1,6 +1,6 @@
 package pt.iade.lane.data.network
 
-import pt.iade.lane.data.models.* // Importa todos os teus models
+import pt.iade.lane.data.models.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

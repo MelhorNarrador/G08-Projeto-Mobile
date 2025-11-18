@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
 
 data class CreateEventDTO(
-
     @SerializedName("event_title")
     val titulo: String,
 
@@ -36,5 +35,12 @@ data class CreateEventDTO(
     val preco: BigDecimal,
 
     @SerializedName("max_participants")
-    val maxParticipantes: Int
+    val maxParticipantes: Int,
+
+    // Eram estes dois que faltavam no teu PC atual:
+    @SerializedName("id")
+    val id: Int? = 0, // Coloquei valor por defeito para facilitar
+
+    @SerializedName("filters_name")
+    val name: String? = ""
 )

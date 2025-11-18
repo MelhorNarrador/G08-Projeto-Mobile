@@ -7,12 +7,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import pt.iade.lane.data.models.LoginRequestDTO     // <-- Importa o DTO de Login
-import pt.iade.lane.data.models.LoginResponseDTO  // <-- Importa a Resposta de Login
+import pt.iade.lane.data.models.LoginRequestDTO
+import pt.iade.lane.data.models.LoginResponseDTO
 import pt.iade.lane.data.models.RegisterRequestDTO
 import pt.iade.lane.data.models.Utilizador
 import pt.iade.lane.data.repository.UtilizadorRepository
-import pt.iade.lane.data.utils.SessionManager     // <-- Importa o SessionManager
+import pt.iade.lane.data.utils.SessionManager
 import java.lang.Exception
 
 class AuthViewModel(
@@ -38,7 +38,6 @@ class AuthViewModel(
                     Log.d("AuthViewModel", "Registo falhou (resposta não foi sucesso).")
                 }
             } catch (e: Exception) {
-                // Lida com erros de rede, etc.
                 Log.e("AuthViewModel", "Exceção no registo: ${e.message}", e)
                 _registrationState.value = RegistrationState.Error(e.message ?: "Erro de rede")
             }
@@ -52,14 +51,14 @@ class AuthViewModel(
                 val response = repository.loginUtilizador(request)
 
                 if (response != null) {
-                    // SUCESSO! Guarda o token e o ID
                     sessionManager.saveAuth(response.token, response.userId)
+                    pt.iade.lane.data.network.RetrofitClient.authToken = response.token
                     _loginState.value = LoginState.Success
-                    Log.d("AuthViewModel", "Login com sucesso! Token: ${response.token}")
+                    Log.d("AuthViewModel", "Login OK! Token configurado: ${response.token}")
                 } else {
-                    // Erro (Password errada, user não existe)
                     _loginState.value = LoginState.Error("Email ou password inválidos.")
                 }
+
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Exceção no login: ${e.message}", e)
                 _loginState.value = LoginState.Error(e.message ?: "Erro de rede")

@@ -7,5 +7,5 @@ data class Filtro(
     val id: Int,
 
     @SerializedName("filters_name")
-    val nome: String
+    val nome: String?
 )

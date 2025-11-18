@@ -9,7 +9,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
-    EventService eventService;
+
+    private final EventService eventService;
 
     public EventController(EventService eventService){
         this.eventService = eventService;
@@ -25,9 +26,8 @@ public class EventController {
         return eventService.createEvent(event);
     }
 
-    @DeleteMapping("delete/id")
+    @DeleteMapping("/delete/{id}")
     public void deleteEvent(@PathVariable Integer id){
         eventService.deleteEvent(id);
     }
-
 }

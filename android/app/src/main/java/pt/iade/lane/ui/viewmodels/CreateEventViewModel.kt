@@ -22,6 +22,7 @@ class CreateEventViewModel(
     val filters: StateFlow<List<Filtro>> = _filters
     private val _creationState = MutableStateFlow<EventCreationState>(EventCreationState.Idle)
     val creationState: StateFlow<EventCreationState> = _creationState
+
     fun loadFilters() {
         viewModelScope.launch {
             try {
@@ -33,16 +34,16 @@ class CreateEventViewModel(
             }
         }
     }
+
     fun createEvent(eventData: CreateEventDTO) {
         viewModelScope.launch {
             _creationState.value = EventCreationState.Loading
             try {
-                // Pede ao repositório para criar o evento
                 val eventoCriado = repository.criarEvento(eventData)
 
                 if (eventoCriado != null) {
                     _creationState.value = EventCreationState.Success(eventoCriado)
-                    Log.d("CreateEventViewModel", "Evento criado com sucesso: ${eventoCriado.titulo}")
+                    Log.d("CreateEventViewModel", "Evento criado com sucesso: ${eventoCriado.title}")
                 } else {
                     _creationState.value = EventCreationState.Error("Falha ao criar evento.")
                 }
@@ -51,9 +52,11 @@ class CreateEventViewModel(
             }
         }
     }
+
     fun getCreatorId(): Int? {
         return sessionManager.fetchUserId()
     }
+
     class Factory(
         private val repository: EventoRepository,
         private val sessionManager: SessionManager
@@ -67,6 +70,7 @@ class CreateEventViewModel(
         }
     }
 }
+
 sealed class EventCreationState {
     object Idle : EventCreationState()
     object Loading : EventCreationState()

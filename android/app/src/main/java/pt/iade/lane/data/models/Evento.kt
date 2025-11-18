@@ -1,44 +1,42 @@
 package pt.iade.lane.data.models
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date // O Gson pode precisar de ajuda para converter datas
-
+import java.math.BigDecimal
 
 data class Evento(
-
     @SerializedName("event_id")
     val id: Int,
 
     @SerializedName("event_title")
-    val titulo: String,
+    val title: String,
 
     @SerializedName("event_description")
-    val descricao: String?,
+    val description: String?,
 
     @SerializedName("event_visibility")
-    val visibilidade: String, // "public", "private", "invite"
+    val visibility: String,
 
     @SerializedName("event_category_id")
-    val categoriaId: Int?,
+    val categoryId: Int,
 
     @SerializedName("event_creator_id")
-    val criadorId: Int,
+    val creatorId: Int,
 
     @SerializedName("location")
-    val localizacao: String?,
+    val location: String?,
 
     @SerializedName("event_latitude")
-    val latitude: Double?,
+    val latitude: BigDecimal?,
 
     @SerializedName("event_longitude")
-    val longitude: Double?,
+    val longitude: BigDecimal?,
 
     @SerializedName("event_date")
-    val data: Date,
+    val date: String,
 
     @SerializedName("event_price")
-    val preco: Double, // Na BD está 'DEFAULT 0', por isso não deve ser nulo (Talvez Corrija)
+    val price: BigDecimal,
 
-    @SerializedName("created_at")
-    val criadoEm: Date
+    @SerializedName("max_participants")
+    val maxParticipants: Int
 )

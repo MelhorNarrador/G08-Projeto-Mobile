@@ -67,6 +67,7 @@ fun LaneApp(viewModel: EventoViewModel) {
     val context = LocalContext.current
 
     Scaffold(
+        floatingActionButtonPosition = FabPosition.Start,
         bottomBar = {
             NavigationBar {
                 items.forEachIndexed { index, item ->
@@ -74,7 +75,6 @@ fun LaneApp(viewModel: EventoViewModel) {
                         selected = selectedItemIndex == index,
                         onClick = {
                             selectedItemIndex = index
-                            // No futuro, aqui navegaríamos para outros ecrãs
                             Log.d("Navigation", "Clicado: $item")
                         },
                         label = { Text(item) },
@@ -135,18 +135,22 @@ fun MapContent(viewModel: EventoViewModel) {
             ) {
                 eventos.forEach { evento ->
                     if (evento.latitude != null && evento.longitude != null) {
-                        val posicao = LatLng(evento.latitude, evento.longitude)
-                        Marker(
-                            state = MarkerState(position = posicao),
-                            title = evento.titulo,
-                            snippet = evento.localizacao
-                        )
+                        val lat = evento.latitude.toDouble()
+                        val lng = evento.longitude.toDouble()
+
+                        if (lat != 0.0 || lng != 0.0) {
+                            val posicao = LatLng(lat, lng)
+                            Marker(
+                                state = MarkerState(position = posicao),
+                                title = evento.title,
+                                snippet = evento.location
+                            )
+                        }
                     }
                 }
             }
 
             if (eventos.isEmpty()) {
-
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
