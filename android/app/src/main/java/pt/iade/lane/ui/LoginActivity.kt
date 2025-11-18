@@ -56,7 +56,6 @@ class LoginActivity : ComponentActivity() {
                 LaunchedEffect(loginState) {
                     when (val state = loginState) {
                         is LoginState.Success -> {
-                            // SUCESSO! Navega para o Mapa
                             Toast.makeText(context, "Login com sucesso!", Toast.LENGTH_SHORT).show()
                             val intent = Intent(context, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -131,9 +130,7 @@ fun LoginScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Nome de utilizador ou email") },
-                // ... (o resto do teu TextField)
                 colors = TextFieldDefaults.colors(
-                    // ...
                 ),
                 shape = MaterialTheme.shapes.medium
             )
@@ -144,9 +141,7 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Palavra-passe") },
-                // ... (o resto do teu TextField)
                 colors = TextFieldDefaults.colors(
-                    // ...
                 ),
                 shape = MaterialTheme.shapes.medium
             )
@@ -155,7 +150,7 @@ fun LoginScreen(
             Button(
                 onClick = { onLoginClick(email, password) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading, // <-- Desativa o botão se estiver a carregar
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White.copy(alpha = 0.3f)
                 )

@@ -73,4 +73,8 @@ public class Event {
     @Column(name = "max_participants", nullable = false)
     @JsonProperty("max_participants")
     private Integer max_participants;
+
+    @Column(name = "event_image", columnDefinition = "TEXT")
+    @JsonProperty("event_image")
+    private String eventImage;
 }

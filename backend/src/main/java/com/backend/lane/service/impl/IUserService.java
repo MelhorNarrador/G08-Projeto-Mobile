@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.backend.lane.domain.LoginRequestDTO;
 import com.backend.lane.domain.LoginResponseDTO;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -59,6 +61,11 @@ public class IUserService implements UserService {
         );
         if (!isPasswordMatch) {
             throw new SecurityException("Password inválida");
+        }
+        final Logger logger = LoggerFactory.getLogger(IUserService.class);
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getAccount_password_hash())) {
+            // Se a hash não corresponder, a senha está errada.
+            throw new SecurityException("Email ou password inválidos.");
         }
         String token = "dummy-token-para-testes-" + user.getAccount_id();
         return new LoginResponseDTO(token, user.getAccount_id());

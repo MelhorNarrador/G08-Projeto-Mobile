@@ -39,7 +39,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.FabPosition
-
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.tooling.preview.Preview
 
 
 class MainActivity : ComponentActivity() {
@@ -115,9 +119,19 @@ fun MapContent(viewModel: EventoViewModel) {
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.carregarEventos()
+            }
+        }
 
-    LaunchedEffect(Unit) {
-        viewModel.carregarEventos()
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     when {
@@ -159,5 +173,27 @@ fun MapContent(viewModel: EventoViewModel) {
                 }
             }
         }
+    }
+
+}
+class MockEventoViewModel(
+    repository: pt.iade.lane.data.repository.EventoRepository
+) : pt.iade.lane.ui.viewmodels.EventoViewModel(repository) {
+    override val eventos: kotlinx.coroutines.flow.StateFlow<List<pt.iade.lane.data.models.Evento>> =
+        kotlinx.coroutines.flow.MutableStateFlow<List<pt.iade.lane.data.models.Evento>>(emptyList())
+    override fun carregarEventos() {
+    }
+}
+@Preview(showBackground = true, showSystemUi = true, name = "Mapa")
+@Composable
+fun LaneAppPreview() {
+    val mockRepository = pt.iade.lane.data.repository.EventoRepository()
+
+    val mockViewModel = remember {
+        MockEventoViewModel(repository = mockRepository)
+    }
+
+    pt.iade.lane.ui.theme.LaneTheme {
+        LaneApp(viewModel = mockViewModel)
     }
 }

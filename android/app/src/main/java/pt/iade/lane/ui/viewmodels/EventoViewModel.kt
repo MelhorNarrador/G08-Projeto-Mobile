@@ -11,14 +11,14 @@ import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.repository.EventoRepository
 import java.lang.Exception
 
-class EventoViewModel(
+open class EventoViewModel(
 
     private val repository: EventoRepository
 ) : ViewModel() {
 
 
     private val _eventos = MutableStateFlow<List<Evento>>(emptyList())
-    val eventos: StateFlow<List<Evento>> = _eventos
+    open val eventos: StateFlow<List<Evento>> = _eventos
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -27,7 +27,7 @@ class EventoViewModel(
     val errorMessage: StateFlow<String?> = _errorMessage
 
 
-    fun carregarEventos() {
+    open fun carregarEventos() {
         Log.d("EventoViewModel", "A carregar eventos...")
 
         viewModelScope.launch {

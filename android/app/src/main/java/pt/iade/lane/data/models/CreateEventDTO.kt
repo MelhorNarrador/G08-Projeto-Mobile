@@ -37,10 +37,12 @@ data class CreateEventDTO(
     @SerializedName("max_participants")
     val maxParticipantes: Int,
 
-    // Eram estes dois que faltavam no teu PC atual:
     @SerializedName("id")
-    val id: Int? = 0, // Coloquei valor por defeito para facilitar
+    val id: Int? = 0,
 
     @SerializedName("filters_name")
-    val name: String? = ""
+    val name: String? = "",
+
+    @SerializedName("event_image")
+    val imagemBase64: String? = null
 )

@@ -34,6 +34,7 @@ import pt.iade.lane.ui.viewmodels.AuthViewModel
 import pt.iade.lane.ui.viewmodels.RegistrationState
 import pt.iade.lane.data.utils.SessionManager
 import java.util.Calendar
+import androidx.compose.runtime.Composable
 
 class RegisterActivity : ComponentActivity() {
 

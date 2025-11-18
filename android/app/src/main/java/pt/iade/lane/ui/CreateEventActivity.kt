@@ -3,31 +3,47 @@ package pt.iade.lane.ui
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -40,6 +56,7 @@ import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.CreateEventViewModel
 import pt.iade.lane.ui.viewmodels.EventCreationState
+import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.util.Calendar
 
@@ -113,6 +130,20 @@ class CreateEventActivity : ComponentActivity() {
     }
 }
 
+fun uriToBase64(context: android.content.Context, uri: android.net.Uri): String? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val bytes = inputStream?.readBytes()
+        inputStream?.close()
+
+        if (bytes != null) {
+            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+        } else null
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
@@ -123,7 +154,7 @@ fun CreateEventScreen(
     onCreateClick: (CreateEventDTO) -> Unit
 ) {
     val context = LocalContext.current
-
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var titulo by remember { mutableStateOf("") }
     var descricao by remember { mutableStateOf("") }
     var preco by remember { mutableStateOf("0") }
@@ -140,6 +171,14 @@ fun CreateEventScreen(
     val visibilidadeOptions = listOf("public", "private")
     var data by remember { mutableStateOf("") }
     var hora by remember { mutableStateOf("") }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            selectedImageUri = uri
+        }
+    }
 
     val placesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -177,6 +216,35 @@ fun CreateEventScreen(
     }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.LightGray)
+                .clickable {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            if (selectedImageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(selectedImageUri),
+                    contentDescription = "Capa do Evento",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(40.dp))
+                    Text("Adicionar Capa", color = Color.Gray)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text("Título do Evento", style = MaterialTheme.typography.labelMedium)
         OutlinedTextField(value = titulo, onValueChange = { titulo = it }, modifier = Modifier.fillMaxWidth())
@@ -269,6 +337,7 @@ fun CreateEventScreen(
                 val precoBigDecimal = try { BigDecimal(preco) } catch (e: Exception) { BigDecimal.ZERO }
                 val maxPartInt = try { maxParticipantes.toInt() } catch (e: Exception) { 0 }
                 val dataFinal = "${data}T${hora}:00"
+                val imagemBase64 = selectedImageUri?.let { uri -> uriToBase64(context, uri) }
 
                 val eventDTO = CreateEventDTO(
                     titulo = titulo,
@@ -283,7 +352,9 @@ fun CreateEventScreen(
                     preco = precoBigDecimal,
                     maxParticipantes = maxPartInt,
                     id = 0,
+                    imagemBase64 = imagemBase64,
                     name = ""
+
                 )
                 onCreateClick(eventDTO)
             },
@@ -294,3 +365,25 @@ fun CreateEventScreen(
         }
     }
 }
+@Preview(showBackground = true, showSystemUi = true, name = "Criar Evento Completo")
+@Composable
+fun CreateEventScreenPreview() {
+    // Dados de teste para o Dropdown
+    val mockFilters = listOf(
+        Filtro(1, "Música e Dança"),
+        Filtro(2, "Desporto Radical"),
+        Filtro(3, "Comida e Bebida")
+    )
+
+    LaneTheme {
+        CreateEventScreen(
+            isLoading = false,
+            filterOptions = mockFilters,
+            creatorId = 5, // ID simulado
+            onCreateClick = {
+                // Simplesmente não faz nada, pois é só uma preview
+            }
+        )
+    }
+}
+
