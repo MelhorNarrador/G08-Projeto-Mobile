@@ -11,7 +11,10 @@ import java.math.BigDecimal
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://192.168.1.228:8080/"
+    /*private const val BASE_URL = "http://192.168.1.228:8080/"*/
+    /*private const val BASE_URL = "http://10.208.199.32:8080/"*/
+    private const val BASE_URL = "http://192.168.1.92:8080/"
+
 
     var authToken: String? = null
 

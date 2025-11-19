@@ -3,14 +3,9 @@ package pt.iade.lane.ui
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,7 +15,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,9 +34,27 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,9 +62,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import coil.compose.rememberAsyncImagePainter
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
@@ -53,10 +76,9 @@ import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.SessionManager
+import pt.iade.lane.data.utils.uriToBase64
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.CreateEventViewModel
-import pt.iade.lane.ui.viewmodels.EventCreationState
-import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.util.Calendar
 
@@ -84,24 +106,34 @@ class CreateEventActivity : ComponentActivity() {
         setContent {
             LaneTheme {
                 val viewModel: CreateEventViewModel = viewModel(
-                    factory = CreateEventViewModel.Factory(eventoRepository, sessionManager)
+                    factory = viewModelFactory {
+                        initializer {
+                            CreateEventViewModel(eventoRepository, sessionManager)
+                        }
+                    }
                 )
                 val filters by viewModel.filters.collectAsState()
-                val creationState by viewModel.creationState.collectAsState()
+                val isLoading by viewModel.isLoading.collectAsState()
+                val isSuccess by viewModel.isSuccess.collectAsState()
+                val errorMessage by viewModel.errorMessage.collectAsState()
+
                 val context = LocalContext.current
 
-                LaunchedEffect(Unit) { viewModel.loadFilters() }
+                LaunchedEffect(Unit) {
+                    viewModel.loadFilters()
+                }
 
-                LaunchedEffect(creationState) {
-                    when (val state = creationState) {
-                        is EventCreationState.Success -> {
-                            Toast.makeText(context, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show()
-                            finish()
-                        }
-                        is EventCreationState.Error -> {
-                            Toast.makeText(context, "Erro: ${state.message}", Toast.LENGTH_LONG).show()
-                        }
-                        else -> {}
+                LaunchedEffect(isSuccess) {
+                    if (isSuccess) {
+                        Toast.makeText(context, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                }
+
+                LaunchedEffect(errorMessage) {
+                    if (errorMessage != null) {
+                        Toast.makeText(context, "Erro: $errorMessage", Toast.LENGTH_LONG).show()
+                        viewModel.clearError()
                     }
                 }
 
@@ -119,7 +151,7 @@ class CreateEventActivity : ComponentActivity() {
                 ) { innerPadding ->
                     CreateEventScreen(
                         modifier = Modifier.padding(innerPadding),
-                        isLoading = creationState is EventCreationState.Loading,
+                        isLoading = isLoading,
                         filterOptions = filters,
                         creatorId = viewModel.getCreatorId(),
                         onCreateClick = { eventDTO -> viewModel.createEvent(eventDTO) }
@@ -130,20 +162,6 @@ class CreateEventActivity : ComponentActivity() {
     }
 }
 
-fun uriToBase64(context: android.content.Context, uri: android.net.Uri): String? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val bytes = inputStream?.readBytes()
-        inputStream?.close()
-
-        if (bytes != null) {
-            android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
-        } else null
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
@@ -154,7 +172,6 @@ fun CreateEventScreen(
     onCreateClick: (CreateEventDTO) -> Unit
 ) {
     val context = LocalContext.current
-    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var titulo by remember { mutableStateOf("") }
     var descricao by remember { mutableStateOf("") }
     var preco by remember { mutableStateOf("0") }
@@ -164,20 +181,20 @@ fun CreateEventScreen(
     var latitudeSelecionada by remember { mutableStateOf(BigDecimal.ZERO) }
     var longitudeSelecionada by remember { mutableStateOf(BigDecimal.ZERO) }
 
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
     var tipoEventoExpanded by remember { mutableStateOf(false) }
     var selectedFiltro by remember { mutableStateOf<Filtro?>(null) }
     var privacidadeExpanded by remember { mutableStateOf(false) }
     var selectedVisibilidade by remember { mutableStateOf("public") }
-    val visibilidadeOptions = listOf("public", "private")
+    val visibilidadeOptions = listOf("public", "private", "invite")
     var data by remember { mutableStateOf("") }
     var hora by remember { mutableStateOf("") }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) {
-            selectedImageUri = uri
-        }
+        if (uri != null) selectedImageUri = uri
     }
 
     val placesLauncher = rememberLauncherForActivityResult(
@@ -197,11 +214,8 @@ fun CreateEventScreen(
             AutocompleteActivity.RESULT_ERROR -> {
                 result.data?.let { intent ->
                     val status = Autocomplete.getStatusFromIntent(intent)
-                    Log.e("GooglePlaces", "Erro API: ${status.statusMessage}")
                     Toast.makeText(context, "Erro Google: ${status.statusMessage}", Toast.LENGTH_LONG).show()
                 }
-            }
-            Activity.RESULT_CANCELED -> {
             }
         }
     }
@@ -224,16 +238,14 @@ fun CreateEventScreen(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.LightGray)
                 .clickable {
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 },
             contentAlignment = Alignment.Center
         ) {
             if (selectedImageUri != null) {
                 Image(
                     painter = rememberAsyncImagePainter(selectedImageUri),
-                    contentDescription = "Capa do Evento",
+                    contentDescription = "Capa",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -246,49 +258,33 @@ fun CreateEventScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Título do Evento", style = MaterialTheme.typography.labelMedium)
-        OutlinedTextField(value = titulo, onValueChange = { titulo = it }, modifier = Modifier.fillMaxWidth())
+        EventBasicInfoSection(
+            titulo = titulo,
+            onTituloChange = { titulo = it },
+            descricao = descricao,
+            onDescricaoChange = { descricao = it },
+            localizacaoTexto = localizacaoTexto,
+            onLocalizacaoClick = {
+                try {
+                    val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
+                    val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(context)
+                    placesLauncher.launch(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Descrição", style = MaterialTheme.typography.labelMedium)
-        OutlinedTextField(value = descricao, onValueChange = { descricao = it }, modifier = Modifier.fillMaxWidth(), minLines = 3)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Localização", style = MaterialTheme.typography.labelMedium)
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = localizacaoTexto,
-                onValueChange = {},
-                readOnly = true,
-                placeholder = { Text("Toque para pesquisar...") },
-                trailingIcon = { Icon(Icons.Default.Place, "Mapa") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable {
-                        try {
-                            val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
-                            val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                                .build(context)
-                            placesLauncher.launch(intent)
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Erro ao abrir mapa: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Tipo de Evento", style = MaterialTheme.typography.labelMedium)
+        Text("Categoria", style = MaterialTheme.typography.labelMedium)
         ExposedDropdownMenuBox(expanded = tipoEventoExpanded, onExpandedChange = { tipoEventoExpanded = !tipoEventoExpanded }) {
-            val textoDisplay = selectedFiltro?.nome ?: "Selecione um tipo"
+            val textoDisplay = selectedFiltro?.nome ?: "Selecione"
             OutlinedTextField(value = textoDisplay, onValueChange = {}, readOnly = true, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = tipoEventoExpanded) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true))
             if (filterOptions.isNotEmpty()) {
                 ExposedDropdownMenu(expanded = tipoEventoExpanded, onDismissRequest = { tipoEventoExpanded = false }) {
                     filterOptions.forEach { filtro ->
-                        DropdownMenuItem(text = { Text(text = filtro.nome ?: "Sem nome") }, onClick = { selectedFiltro = filtro; tipoEventoExpanded = false })
+                        DropdownMenuItem(text = { Text(filtro.nome ?: "Sem nome") }, onClick = { selectedFiltro = filtro; tipoEventoExpanded = false })
                     }
                 }
             }
@@ -313,7 +309,7 @@ fun CreateEventScreen(
                 OutlinedTextField(value = preco, onValueChange = { preco = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, modifier = Modifier.fillMaxWidth())
             }
             Column(Modifier.weight(1f)) {
-                Text("Max. Participantes", style = MaterialTheme.typography.labelMedium)
+                Text("Participantes", style = MaterialTheme.typography.labelMedium)
                 OutlinedTextField(value = maxParticipantes, onValueChange = { maxParticipantes = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, modifier = Modifier.fillMaxWidth())
             }
         }
@@ -331,13 +327,14 @@ fun CreateEventScreen(
         Button(
             onClick = {
                 if (selectedFiltro == null || titulo.isBlank() || data.isBlank() || hora.isBlank() || localizacaoTexto.isBlank()) {
-                    Toast.makeText(context, "Preencha todos os campos (incluindo localização)", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
-                val precoBigDecimal = try { BigDecimal(preco) } catch (e: Exception) { BigDecimal.ZERO }
-                val maxPartInt = try { maxParticipantes.toInt() } catch (e: Exception) { 0 }
+                val precoBigDecimal = try { BigDecimal(preco) } catch (_: Exception) { BigDecimal.ZERO }
+                val maxPartInt = try { maxParticipantes.toInt() } catch (_: Exception) { 0 }
                 val dataFinal = "${data}T${hora}:00"
-                val imagemBase64 = selectedImageUri?.let { uri -> uriToBase64(context, uri) }
+
+                val imagemString = selectedImageUri?.let { uriToBase64(context, it) }
 
                 val eventDTO = CreateEventDTO(
                     titulo = titulo,
@@ -351,10 +348,9 @@ fun CreateEventScreen(
                     data = dataFinal,
                     preco = precoBigDecimal,
                     maxParticipantes = maxPartInt,
+                    imagemBase64 = imagemString,
                     id = 0,
-                    imagemBase64 = imagemBase64,
                     name = ""
-
                 )
                 onCreateClick(eventDTO)
             },
@@ -365,25 +361,3 @@ fun CreateEventScreen(
         }
     }
 }
-@Preview(showBackground = true, showSystemUi = true, name = "Criar Evento Completo")
-@Composable
-fun CreateEventScreenPreview() {
-    // Dados de teste para o Dropdown
-    val mockFilters = listOf(
-        Filtro(1, "Música e Dança"),
-        Filtro(2, "Desporto Radical"),
-        Filtro(3, "Comida e Bebida")
-    )
-
-    LaneTheme {
-        CreateEventScreen(
-            isLoading = false,
-            filterOptions = mockFilters,
-            creatorId = 5, // ID simulado
-            onCreateClick = {
-                // Simplesmente não faz nada, pois é só uma preview
-            }
-        )
-    }
-}
-
