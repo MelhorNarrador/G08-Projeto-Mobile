@@ -43,7 +43,10 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.ui.viewmodels.EventoViewModel
-
+import androidx.compose.runtime.mutableStateOf
+import pt.iade.lane.components.EventDetailsBottomSheet
+import pt.iade.lane.components.toUi
+import pt.iade.lane.data.utils.EventUi
 
 class MainActivity : ComponentActivity() {
 
@@ -119,6 +122,10 @@ fun MapContent(viewModel: EventoViewModel) {
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    var selectedEventUi by remember { mutableStateOf<EventUi?>(null) }
+    var isSheetOpen by remember { mutableStateOf(false) }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -143,38 +150,58 @@ fun MapContent(viewModel: EventoViewModel) {
         }
 
         else -> {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                eventos.forEach { evento ->
-                    if (evento.latitude != null && evento.longitude != null) {
-                        val lat = evento.latitude.toDouble()
-                        val lng = evento.longitude.toDouble()
+            Box(modifier = Modifier.fillMaxSize()) {
 
-                        if (lat != 0.0 || lng != 0.0) {
-                            val posicao = LatLng(lat, lng)
-                            Marker(
-                                state = MarkerState(position = posicao),
-                                title = evento.title,
-                                snippet = evento.location
-                            )
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    eventos.forEach { evento ->
+                        Log.d("BottomSheet", "imageBase64 length = ${evento.imageBase64?.length}")
+                        if (evento.latitude != null && evento.longitude != null) {
+                            val lat = evento.latitude.toDouble()
+                            val lng = evento.longitude.toDouble()
+
+                            if (lat != 0.0 || lng != 0.0) {
+                                val posicao = LatLng(lat, lng)
+                                Marker(
+                                    state = MarkerState(position = posicao),
+                                    title = evento.title,
+                                    snippet = evento.location,
+                                    onClick = {
+                                        selectedEventUi = evento.toUi()
+                                        isSheetOpen = true
+                                        true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            if (eventos.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Não foram encontrados eventos.")
+                if (eventos.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Não foram encontrados eventos.")
+                    }
+                }
+                if (isSheetOpen && selectedEventUi != null) {
+                    EventDetailsBottomSheet(
+                        event = selectedEventUi,
+                        onDismissRequest = {
+                            isSheetOpen = false
+                            selectedEventUi = null
+                        },
+                        onParticipateClick = {
+                        }
+                    )
                 }
             }
         }
     }
-
 }
+
 class MockEventoViewModel(
     repository: pt.iade.lane.data.repository.EventoRepository
 ) : pt.iade.lane.ui.viewmodels.EventoViewModel(repository) {

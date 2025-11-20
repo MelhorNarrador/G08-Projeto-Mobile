@@ -7,6 +7,7 @@ import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.models.Filtro
 import retrofit2.Response
 
+
 class EventoRepository {
 
     private val apiService = RetrofitClient.apiService
@@ -44,6 +45,14 @@ class EventoRepository {
         } catch (e: Exception) {
             Log.e("EventoRepository", "Exceção ao buscar filtros: ${e.message}")
             emptyList()
+        }
+    }
+    suspend fun getParticipantsCount(eventId: Int): Int {
+        return try {
+            apiService.getParticipantsCount(eventId).toInt()
+        } catch (e: Exception) {
+            Log.e("EventoRepository", "Falha ao buscar participantes: ${e.message}")
+            0
         }
     }
 }

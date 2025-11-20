@@ -51,6 +51,8 @@ dependencies {
     implementation("com.google.android.libraries.places:places:3.3.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
+
 
 
     implementation(libs.androidx.activity.compose)

@@ -38,5 +38,8 @@ data class Evento(
     val price: BigDecimal,
 
     @SerializedName("max_participants")
-    val maxParticipants: Int
+    val maxParticipants: Int,
+
+    @SerializedName("event_image")
+    val imageBase64: String?
 )

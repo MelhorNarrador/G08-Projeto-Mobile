@@ -62,4 +62,9 @@ interface LaneAppAPIService {
 
     @DELETE("api/eparticipants/{id}")
     suspend fun deleteParticipant(@Path("id") id: Int): Response<String>
+
+    @GET("api/events/{id}/participants/count")
+    suspend fun getParticipantsCount(
+        @Path("id") eventId: Int
+    ): Long
 }

@@ -76,11 +76,15 @@ import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.SessionManager
-import pt.iade.lane.data.utils.uriToBase64
+import pt.iade.lane.components.uriToBase64
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.CreateEventViewModel
 import java.math.BigDecimal
 import java.util.Calendar
+import pt.iade.lane.components.EventVisualSection
+import pt.iade.lane.components.EventFormState
+import pt.iade.lane.components.validateCreateEventForm
+import pt.iade.lane.components.toCreateEventDTO
 
 @OptIn(ExperimentalMaterial3Api::class)
 class CreateEventActivity : ComponentActivity() {
@@ -172,31 +176,16 @@ fun CreateEventScreen(
     onCreateClick: (CreateEventDTO) -> Unit
 ) {
     val context = LocalContext.current
-    var titulo by remember { mutableStateOf("") }
-    var descricao by remember { mutableStateOf("") }
-    var preco by remember { mutableStateOf("0") }
-    var maxParticipantes by remember { mutableStateOf("100") }
-
-    var localizacaoTexto by remember { mutableStateOf("") }
-    var latitudeSelecionada by remember { mutableStateOf(BigDecimal.ZERO) }
-    var longitudeSelecionada by remember { mutableStateOf(BigDecimal.ZERO) }
-
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-
+    var formState by remember { mutableStateOf(EventFormState()) }
     var tipoEventoExpanded by remember { mutableStateOf(false) }
-    var selectedFiltro by remember { mutableStateOf<Filtro?>(null) }
     var privacidadeExpanded by remember { mutableStateOf(false) }
-    var selectedVisibilidade by remember { mutableStateOf("public") }
-    val visibilidadeOptions = listOf("public", "private", "invite")
-    var data by remember { mutableStateOf("") }
-    var hora by remember { mutableStateOf("") }
-
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val visibilidadeOptions = listOf("public", "private")
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) selectedImageUri = uri
     }
-
     val placesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -204,11 +193,14 @@ fun CreateEventScreen(
             Activity.RESULT_OK -> {
                 result.data?.let { intent ->
                     val place = Autocomplete.getPlaceFromIntent(intent)
-                    localizacaoTexto = place.address ?: place.name ?: "Localização"
-                    place.latLng?.let {
-                        latitudeSelecionada = BigDecimal.valueOf(it.latitude)
-                        longitudeSelecionada = BigDecimal.valueOf(it.longitude)
-                    }
+                    val texto = place.address ?: place.name ?: "Localização"
+                    val latLng = place.latLng
+
+                    formState = formState.copy(
+                        localizacaoTexto = texto,
+                        latitude = latLng?.let { BigDecimal.valueOf(it.latitude) } ?: BigDecimal.ZERO,
+                        longitude = latLng?.let { BigDecimal.valueOf(it.longitude) } ?: BigDecimal.ZERO
+                    )
                 }
             }
             AutocompleteActivity.RESULT_ERROR -> {
@@ -219,145 +211,107 @@ fun CreateEventScreen(
             }
         }
     }
-
-    val calendar = Calendar.getInstance()
-    val datePickerDialog = DatePickerDialog(context, { _, y, m, d ->
-        data = "$y-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}"
-    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
-
-    val timePickerDialog = TimePickerDialog(context, { _, h, m ->
-        hora = "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
-    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
-
     Column(modifier = modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+        EventVisualSection(
+            formState = formState,
+            onFormChange = { formState = it },
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.LightGray)
-                .clickable {
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            if (selectedImageUri != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(selectedImageUri),
-                    contentDescription = "Capa",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+            selectedImageUri = selectedImageUri,
+            onCoverClick = {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
                 )
-            } else {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(40.dp))
-                    Text("Adicionar Capa", color = Color.Gray)
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            },
 
-        EventBasicInfoSection(
-            titulo = titulo,
-            onTituloChange = { titulo = it },
-            descricao = descricao,
-            onDescricaoChange = { descricao = it },
-            localizacaoTexto = localizacaoTexto,
+            filterOptions = filterOptions,
+            tipoEventoExpanded = tipoEventoExpanded,
+            onTipoEventoExpandedChange = { tipoEventoExpanded = it },
+
+            privacidadeExpanded = privacidadeExpanded,
+            onPrivacidadeExpandedChange = { privacidadeExpanded = it },
+            visibilidadeOptions = visibilidadeOptions,
             onLocalizacaoClick = {
-                try {
-                    val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG)
-                    val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(context)
-                    placesLauncher.launch(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Erro: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Categoria", style = MaterialTheme.typography.labelMedium)
-        ExposedDropdownMenuBox(expanded = tipoEventoExpanded, onExpandedChange = { tipoEventoExpanded = !tipoEventoExpanded }) {
-            val textoDisplay = selectedFiltro?.nome ?: "Selecione"
-            OutlinedTextField(value = textoDisplay, onValueChange = {}, readOnly = true, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = tipoEventoExpanded) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true))
-            if (filterOptions.isNotEmpty()) {
-                ExposedDropdownMenu(expanded = tipoEventoExpanded, onDismissRequest = { tipoEventoExpanded = false }) {
-                    filterOptions.forEach { filtro ->
-                        DropdownMenuItem(text = { Text(filtro.nome ?: "Sem nome") }, onClick = { selectedFiltro = filtro; tipoEventoExpanded = false })
+                        try {
+                            val fields = listOf(
+                                Place.Field.ID,
+                                Place.Field.NAME,
+                                Place.Field.ADDRESS,
+                                Place.Field.LAT_LNG
+                            )
+                            val intent = Autocomplete.IntentBuilder(
+                                AutocompleteActivityMode.OVERLAY,
+                                fields
+                            ).build(context)
+                            placesLauncher.launch(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                context,
+                                "Erro: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    onDataClick = {
+                        val calendar = Calendar.getInstance()
+                        DatePickerDialog(
+                            context,
+                            { _, y, m, d ->
+                                val dataStr =
+                                    "$y-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}"
+                                formState = formState.copy(data = dataStr)
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    },
+                    onHoraClick = {
+                        val calendar = Calendar.getInstance()
+                        TimePickerDialog(
+                            context,
+                            { _, h, m ->
+                                val horaStr =
+                                    "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
+                                formState = formState.copy(hora = horaStr)
+                            },
+                            calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            true
+                        ).show()
                     }
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+                )
 
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text("Data", style = MaterialTheme.typography.labelMedium)
-                OutlinedTextField(value = data, onValueChange = {}, readOnly = true, trailingIcon = { IconButton(onClick = { datePickerDialog.show() }) { Icon(Icons.Default.DateRange, "Data") } }, modifier = Modifier.fillMaxWidth())
-            }
-            Column(Modifier.weight(1f)) {
-                Text("Hora", style = MaterialTheme.typography.labelMedium)
-                OutlinedTextField(value = hora, onValueChange = {}, readOnly = true, trailingIcon = { IconButton(onClick = { timePickerDialog.show() }) { Icon(Icons.Default.AccessTime, "Hora") } }, modifier = Modifier.fillMaxWidth())
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text("Preço (€)", style = MaterialTheme.typography.labelMedium)
-                OutlinedTextField(value = preco, onValueChange = { preco = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, modifier = Modifier.fillMaxWidth())
-            }
-            Column(Modifier.weight(1f)) {
-                Text("Participantes", style = MaterialTheme.typography.labelMedium)
-                OutlinedTextField(value = maxParticipantes, onValueChange = { maxParticipantes = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, modifier = Modifier.fillMaxWidth())
-            }
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Privacidade", style = MaterialTheme.typography.labelMedium)
-        ExposedDropdownMenuBox(expanded = privacidadeExpanded, onExpandedChange = { privacidadeExpanded = !privacidadeExpanded }) {
-            OutlinedTextField(value = selectedVisibilidade, onValueChange = {}, readOnly = true, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = privacidadeExpanded) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true))
-            ExposedDropdownMenu(expanded = privacidadeExpanded, onDismissRequest = { privacidadeExpanded = false }) {
-                visibilidadeOptions.forEach { option -> DropdownMenuItem(text = { Text(option) }, onClick = { selectedVisibilidade = option; privacidadeExpanded = false }) }
-            }
-        }
-        Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = {
-                if (selectedFiltro == null || titulo.isBlank() || data.isBlank() || hora.isBlank() || localizacaoTexto.isBlank()) {
-                    Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+                val error = validateCreateEventForm(formState)
+                if (error != null) {
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                     return@Button
                 }
-                val precoBigDecimal = try { BigDecimal(preco) } catch (_: Exception) { BigDecimal.ZERO }
-                val maxPartInt = try { maxParticipantes.toInt() } catch (_: Exception) { 0 }
-                val dataFinal = "${data}T${hora}:00"
 
-                val imagemString = selectedImageUri?.let { uriToBase64(context, it) }
+                val imagemString = selectedImageUri?.let { uri ->
+                    uriToBase64(context, uri)
+                }
 
-                val eventDTO = CreateEventDTO(
-                    titulo = titulo,
-                    descricao = descricao,
-                    visibilidade = selectedVisibilidade,
-                    categoriaId = selectedFiltro!!.id,
-                    criadorId = creatorId ?: 0,
-                    localizacao = localizacaoTexto,
-                    latitude = latitudeSelecionada,
-                    longitude = longitudeSelecionada,
-                    data = dataFinal,
-                    preco = precoBigDecimal,
-                    maxParticipantes = maxPartInt,
-                    imagemBase64 = imagemString,
-                    id = 0,
-                    name = ""
+                val eventDTO = formState.toCreateEventDTO(
+                    creatorId = creatorId ?: 0,
+                    imagemBase64 = imagemString
                 )
+
                 onCreateClick(eventDTO)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
         ) {
-            if (isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp)) else Text("Criar Evento")
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Criar Evento")
+            }
         }
     }
 }
