@@ -5,13 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "event_participants", uniqueConstraints = {
     @UniqueConstraint(name = "unique_participation", columnNames = {"event_id", "user_id"})
 })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EventParticipants {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

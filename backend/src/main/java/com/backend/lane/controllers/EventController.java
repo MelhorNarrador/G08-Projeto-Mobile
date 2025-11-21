@@ -4,6 +4,8 @@ import com.backend.lane.domain.Event;
 import com.backend.lane.service.EventService;
 import org.springframework.web.bind.annotation.*;
 import com.backend.lane.service.EParticipantsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -37,5 +39,21 @@ public class EventController {
     @GetMapping("/{id}/participants/count")
     public long getParticipantsCount(@PathVariable("id") Integer eventId) {
         return eParticipantsService.countParticipantsByEventId(eventId);
+    }
+    @PostMapping("/{id}/participants/join")
+    public ResponseEntity<String> joinEvent(
+            @PathVariable("id") Integer eventId,
+            @RequestParam("userId") Integer userId
+    ) {
+        try {
+            eParticipantsService.addParticipantToEvent(eventId, userId);
+            return ResponseEntity.ok("Participação registada com sucesso.");
+        } catch (IllegalStateException e) {
+            // já inscrito
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao registar participação.");
+        }
     }
 }

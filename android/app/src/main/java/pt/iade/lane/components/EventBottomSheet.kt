@@ -5,35 +5,45 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Train
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
-import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.utils.EventUi
-import androidx.compose.ui.graphics.asImageBitmap
-import android.util.Log
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.asImageBitmap
-import pt.iade.lane.components.decodeBase64ToBitmapSafe
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.layout.heightIn
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,7 +127,7 @@ fun EventDetailsBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp) // altura máxima visível
+                        .heightIn(max = 200.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
@@ -132,7 +142,8 @@ fun EventDetailsBottomSheet(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     NavigationModeButton(
-                        label = "A pé",
+                        icon = Icons.Filled.DirectionsWalk,
+                        contentDescription = "A pé",
                         modifier = Modifier.weight(1f),
                         onClick = {
                             openGoogleMapsNavigation(
@@ -145,7 +156,8 @@ fun EventDetailsBottomSheet(
                     )
 
                     NavigationModeButton(
-                        label = "De carro",
+                        icon = Icons.Filled.DirectionsCar,
+                        contentDescription = "De carro",
                         modifier = Modifier.weight(1f),
                         onClick = {
                             openGoogleMapsNavigation(
@@ -158,7 +170,8 @@ fun EventDetailsBottomSheet(
                     )
 
                     NavigationModeButton(
-                        label = "Publico",
+                        icon = Icons.Filled.Train,
+                        contentDescription = "Transportes",
                         modifier = Modifier.weight(1f),
                         onClick = {
                             openGoogleMapsNavigation(
@@ -173,12 +186,12 @@ fun EventDetailsBottomSheet(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 val isFull = event.currentParticipants >= event.maxParticipants
-                val buttonText = if (isFull) {
-                    "Esgotado"
-                } else {
-                    "Participar (${event.currentParticipants}/${event.maxParticipants})"
+                val isJoined = event.isUserJoined
+                val buttonText = when {
+                    isFull -> "Esgotado"
+                    isJoined -> "Já inscrito"
+                    else -> "Participar (${event.currentParticipants}/${event.maxParticipants})"
                 }
-
                 Button(
                     onClick = {
                         if (!isFull) {
@@ -190,8 +203,14 @@ fun EventDetailsBottomSheet(
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFull) Color.Red else MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = Color.Red,
+                        containerColor = when {
+                            isFull -> Color.Red
+                            else -> MaterialTheme.colorScheme.primary
+                        },
+                        disabledContainerColor = when {
+                            isFull -> Color.Red
+                            else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                        },
                         disabledContentColor = Color.White
                     ),
                     shape = RoundedCornerShape(12.dp)
@@ -205,7 +224,8 @@ fun EventDetailsBottomSheet(
 
 @Composable
 private fun NavigationModeButton(
-    label: String,
+    icon: ImageVector,
+    contentDescription: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -214,7 +234,11 @@ private fun NavigationModeButton(
         modifier = modifier.height(40.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(text = label, style = MaterialTheme.typography.labelLarge)
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -231,7 +255,7 @@ private fun openGoogleMapsNavigation(
 
     try {
         context.startActivity(intent)
-    } catch (e: ActivityNotFoundException) {
+    } catch (_: ActivityNotFoundException) {
         val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=${
             when (mode) {
                 "w" -> "walking"

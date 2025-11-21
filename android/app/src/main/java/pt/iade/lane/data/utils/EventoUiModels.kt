@@ -10,6 +10,6 @@ data class EventUi(
     val longitude: Double,
     val dateTime: String,
     val currentParticipants: Int,
-    val maxParticipants: Int
-
+    val maxParticipants: Int,
+    val isUserJoined: Boolean = false
 )

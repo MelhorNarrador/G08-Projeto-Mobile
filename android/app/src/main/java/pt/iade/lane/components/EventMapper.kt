@@ -5,7 +5,8 @@ import pt.iade.lane.data.utils.EventUi
 
 fun Evento.toUi(
     currentParticipants: Int = 0,
-    formattedDateTime: String = this.date
+    formattedDateTime: String = this.date,
+    isUserJoined: Boolean = false
 ): EventUi {
     return EventUi(
         id = id,
@@ -17,6 +18,7 @@ fun Evento.toUi(
         longitude = longitude?.toDouble() ?: 0.0,
         dateTime = formattedDateTime,
         currentParticipants = currentParticipants,
-        maxParticipants = maxParticipants
+        maxParticipants = maxParticipants,
+        isUserJoined = isUserJoined
     )
 }

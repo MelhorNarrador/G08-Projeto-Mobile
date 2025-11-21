@@ -3,6 +3,7 @@ package pt.iade.lane.ui
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -24,10 +25,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,29 +41,32 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import pt.iade.lane.data.repository.EventoRepository
-import pt.iade.lane.ui.viewmodels.EventoViewModel
-import androidx.compose.runtime.mutableStateOf
+import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 import pt.iade.lane.components.EventDetailsBottomSheet
 import pt.iade.lane.components.toUi
+import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.EventUi
+import pt.iade.lane.data.utils.LocationUtils
+import pt.iade.lane.data.utils.SessionManager
+import pt.iade.lane.ui.theme.LaneTheme
+import pt.iade.lane.ui.viewmodels.EventoViewModel
 
 class MainActivity : ComponentActivity() {
-
-    private val eventoRepository = EventoRepository()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        LocationUtils.requestLocationPermission(this)
         setContent {
             MaterialTheme {
-                val eventoViewModel: EventoViewModel = viewModel(
-                    factory = EventoViewModel.Factory(eventoRepository)
-                )
+                val eventoViewModel: EventoViewModel = viewModel()
                 LaneApp(viewModel = eventoViewModel)
             }
         }
@@ -95,7 +102,7 @@ fun LaneApp(viewModel: EventoViewModel) {
                 }
             }
         },
-                floatingActionButton = {
+        floatingActionButton = {
             FloatingActionButton(onClick = {
                 val intent = Intent(context, CreateEventActivity::class.java)
                 context.startActivity(intent)
@@ -117,6 +124,8 @@ fun LaneApp(viewModel: EventoViewModel) {
 
 @Composable
 fun MapContent(viewModel: EventoViewModel) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -125,16 +134,29 @@ fun MapContent(viewModel: EventoViewModel) {
 
     var selectedEventUi by remember { mutableStateOf<EventUi?>(null) }
     var isSheetOpen by remember { mutableStateOf(false) }
-
+    val sessionManager = remember(context) { SessionManager(context) }
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(38.736946, -9.142685),
+            5f
+        )
+    }
+    val hasPermission = LocationUtils.hasLocationPermission(context)
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            val loc = LocationUtils.getLastKnownLocation(context)
+            if (loc != null) {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(loc, 14f)
+            }
+        }
+    }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.carregarEventos()
             }
         }
-
         lifecycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -153,7 +175,14 @@ fun MapContent(viewModel: EventoViewModel) {
             Box(modifier = Modifier.fillMaxSize()) {
 
                 GoogleMap(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    properties = MapProperties(
+                        isMyLocationEnabled = hasPermission
+                    ),
+                    uiSettings = MapUiSettings(
+                        myLocationButtonEnabled = true
+                    )
                 ) {
                     eventos.forEach { evento ->
                         Log.d("BottomSheet", "imageBase64 length = ${evento.imageBase64?.length}")
@@ -168,8 +197,14 @@ fun MapContent(viewModel: EventoViewModel) {
                                     title = evento.title,
                                     snippet = evento.location,
                                     onClick = {
-                                        selectedEventUi = evento.toUi()
-                                        isSheetOpen = true
+                                        scope.launch {
+                                            val count = viewModel.getParticipantsCount(evento.id)
+                                            selectedEventUi = evento.toUi(
+                                                currentParticipants = count,
+                                                isUserJoined = false
+                                            )
+                                            isSheetOpen = true
+                                        }
                                         true
                                     }
                                 )
@@ -186,6 +221,7 @@ fun MapContent(viewModel: EventoViewModel) {
                         Text(text = "Não foram encontrados eventos.")
                     }
                 }
+
                 if (isSheetOpen && selectedEventUi != null) {
                     EventDetailsBottomSheet(
                         event = selectedEventUi,
@@ -194,6 +230,59 @@ fun MapContent(viewModel: EventoViewModel) {
                             selectedEventUi = null
                         },
                         onParticipateClick = {
+                            scope.launch {
+                                val userId = sessionManager.fetchUserId()
+                                if (userId == null) {
+                                    Toast.makeText(
+                                        context,
+                                        "Utilizador não autenticado",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@launch
+                                }
+
+                                val result =
+                                    viewModel.joinEvent(selectedEventUi!!.id, userId)
+                                val newCount =
+                                    viewModel.getParticipantsCount(selectedEventUi!!.id)
+
+                                when (result) {
+                                    is EventoRepository.JoinResult.Success -> {
+                                        selectedEventUi = selectedEventUi?.copy(
+                                            currentParticipants = newCount,
+                                            isUserJoined = true
+                                        )
+                                        Toast.makeText(
+                                            context,
+                                            "Inscrição registada com sucesso.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is EventoRepository.JoinResult.AlreadyJoined -> {
+                                        selectedEventUi = selectedEventUi?.copy(
+                                            currentParticipants = newCount,
+                                            isUserJoined = true
+                                        )
+                                        Toast.makeText(
+                                            context,
+                                            "Já estás inscrito neste evento.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is EventoRepository.JoinResult.Error -> {
+                                        selectedEventUi = selectedEventUi?.copy(
+                                            currentParticipants = newCount
+                                        )
+                                        Toast.makeText(
+                                            context,
+                                            result.message,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
                         }
                     )
                 }
@@ -201,25 +290,11 @@ fun MapContent(viewModel: EventoViewModel) {
         }
     }
 }
-
-class MockEventoViewModel(
-    repository: pt.iade.lane.data.repository.EventoRepository
-) : pt.iade.lane.ui.viewmodels.EventoViewModel(repository) {
-    override val eventos: kotlinx.coroutines.flow.StateFlow<List<pt.iade.lane.data.models.Evento>> =
-        kotlinx.coroutines.flow.MutableStateFlow<List<pt.iade.lane.data.models.Evento>>(emptyList())
-    override fun carregarEventos() {
-    }
-}
-@Preview(showBackground = true, showSystemUi = true, name = "Mapa")
+@Preview(showBackground = true, showSystemUi = true, name = "LaneApp - Preview")
 @Composable
 fun LaneAppPreview() {
-    val mockRepository = pt.iade.lane.data.repository.EventoRepository()
-
-    val mockViewModel = remember {
-        MockEventoViewModel(repository = mockRepository)
-    }
-
-    pt.iade.lane.ui.theme.LaneTheme {
-        LaneApp(viewModel = mockViewModel)
+    LaneTheme {
+        val previewViewModel = remember { EventoViewModel() }
+        LaneApp(viewModel = previewViewModel)
     }
 }

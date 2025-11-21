@@ -138,7 +138,6 @@ fun RegisterScreen(
 
             Text("Criar Conta", style = MaterialTheme.typography.headlineLarge, color = Color.White)
             Spacer(modifier = Modifier.height(24.dp))
-
             TextField(value = nome, onValueChange = { nome = it }, label = { Text("Nome completo") }, modifier = Modifier.fillMaxWidth(), singleLine = true, colors = loginTextFieldColors())
             Spacer(modifier = Modifier.height(16.dp))
             TextField(value = username, onValueChange = { username = it }, label = { Text("Nome de utilizador") }, modifier = Modifier.fillMaxWidth(), singleLine = true, colors = loginTextFieldColors())
@@ -199,7 +198,13 @@ fun RegisterScreen(
                         email = email,
                         passwordPura = password,
                         dataNascimento = dataNascimento,
-                        genero = genero
+                        genero = when (genero) {
+                            "Prefiro Nao Dizer" -> "Prefiro_nao_dizer"
+                            "Masculino" -> "Masculino"
+                            "Feminino" -> "Feminino"
+                            "Outro" -> "Outro"
+                            else -> genero
+                        }
                     )
                     onRegisterClick(request)
                 },

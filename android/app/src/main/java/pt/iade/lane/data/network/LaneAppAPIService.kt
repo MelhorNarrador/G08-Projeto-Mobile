@@ -7,6 +7,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface LaneAppAPIService {
     @GET("api/users/users")
@@ -67,4 +68,10 @@ interface LaneAppAPIService {
     suspend fun getParticipantsCount(
         @Path("id") eventId: Int
     ): Long
+
+    @POST("api/events/{id}/participants/join")
+    suspend fun joinEvent(
+        @Path("id") eventId: Int,
+        @Query("userId") userId: Int
+    ): Response<Unit>
 }
