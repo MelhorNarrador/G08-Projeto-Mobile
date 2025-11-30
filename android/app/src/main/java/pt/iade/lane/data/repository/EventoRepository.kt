@@ -1,15 +1,15 @@
 package pt.iade.lane.data.repository
 
 import android.util.Log
-import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.models.Evento
-import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.network.RetrofitClient
-
+import pt.iade.lane.data.models.CreateEventDTO
+import pt.iade.lane.data.models.Filtro
 
 class EventoRepository {
 
     private val apiService = RetrofitClient.apiService
+
     suspend fun getTodosEventos(): List<Evento> {
         return try {
             apiService.getTodosEventos()
@@ -18,13 +18,17 @@ class EventoRepository {
             emptyList()
         }
     }
+
     suspend fun criarEvento(request: CreateEventDTO): Evento? {
         return try {
             val response = apiService.criarEvento(request)
             if (response.isSuccessful) {
                 response.body()
             } else {
-                Log.e("EventoRepository", "Falha ao criar evento: ${response.code()} ${response.message()}")
+                Log.e(
+                    "EventoRepository",
+                    "Falha ao criar evento: ${response.code()} ${response.message()}"
+                )
                 null
             }
         } catch (e: Exception) {
@@ -32,6 +36,7 @@ class EventoRepository {
             null
         }
     }
+
     suspend fun getFiltros(): List<Filtro> {
         return try {
             val response = apiService.getFiltros()
@@ -46,36 +51,51 @@ class EventoRepository {
             emptyList()
         }
     }
-    suspend fun getParticipantsCount(eventId: Int): Int {
+
+    suspend fun deleteEvento(id: Int): Boolean {
         return try {
-            apiService.getParticipantsCount(eventId).toInt()
+            val response = apiService.deleteEvent(id)
+            if (!response.isSuccessful) {
+                Log.e("EventoRepository", "Falha ao apagar evento: ${response.code()}")
+            }
+            response.isSuccessful
         } catch (e: Exception) {
-            Log.e("EventoRepository", "Falha ao buscar participantes: ${e.message}")
-            0
+            Log.e("EventoRepository", "Exceção ao apagar evento: ${e.message}")
+            false
         }
     }
+
     sealed class JoinResult {
         object Success : JoinResult()
         object AlreadyJoined : JoinResult()
         data class Error(val message: String) : JoinResult()
     }
+
     suspend fun joinEvent(eventId: Int, userId: Int): JoinResult {
         return try {
             val response = apiService.joinEvent(eventId, userId)
-            val code = response.code()
-            val msg = response.message()
-            val errorBody = response.errorBody()?.string()
-            android.util.Log.d(
-                "EventoRepository", "joinEvent: code=$code msg=$msg errorBody=$errorBody")
+            Log.d(
+                "EventoRepository",
+                "joinEvent code=${response.code()} body=${response.errorBody()?.string()}"
+            )
+
             when {
                 response.isSuccessful -> JoinResult.Success
-                code == 409 -> JoinResult.AlreadyJoined
-                else -> JoinResult.Error("Erro ao participar (HTTP $code)")
+                response.code() == 409 -> JoinResult.AlreadyJoined
+                response.code() == 403 -> JoinResult.Error("Acesso negado (403).")
+                else -> JoinResult.Error("Erro ao participar: ${response.code()}")
             }
+        } catch (e: Exception) {
+            JoinResult.Error("Erro de rede: ${e.message}")
         }
-        catch(e: Exception) {
-                Log.e("EventoRepository", "Exceção ao participar: ${e.message}")
-                JoinResult.Error("Erro de rede ao participar no evento.")
-            }
+    }
+
+    suspend fun getParticipantsCount(eventId: Int): Int {
+        return try {
+            apiService.getParticipantsCount(eventId).toInt()
+        } catch (e: Exception) {
+            Log.e("EventoRepository", "Erro ao buscar participantes: ${e.message}")
+            0
+        }
     }
 }

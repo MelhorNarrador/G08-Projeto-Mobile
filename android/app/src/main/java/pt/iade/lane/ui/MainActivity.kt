@@ -3,7 +3,6 @@ package pt.iade.lane.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -56,6 +55,7 @@ import pt.iade.lane.data.utils.LocationUtils
 import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.EventoViewModel
+import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,15 +74,34 @@ class MainActivity : ComponentActivity() {
 fun LaneApp(viewModel: EventoViewModel) {
     val context = LocalContext.current
     val sessionManager = remember(context) { SessionManager(context) }
+    val scope = rememberCoroutineScope()
 
     var selectedItemIndex by remember { mutableIntStateOf(0) }
     var isProfileSheetOpen by remember { mutableStateOf(false) }
+
+    val eventos by viewModel.eventos.collectAsState()
 
     val name = sessionManager.fetchUserName().orEmpty()
     val usernameRaw = sessionManager.fetchUserUsername().orEmpty()
     val username = if (usernameRaw.isNotEmpty()) "@$usernameRaw" else ""
     val bio = sessionManager.fetchUserBio().orEmpty()
     val profileImageBase64 = sessionManager.fetchUserProfileImage()
+    val userId = sessionManager.fetchUserId()
+    val joinedIds = sessionManager.fetchJoinedEvents()
+
+    fun isFuture(evento: pt.iade.lane.data.models.Evento): Boolean {
+        return try {
+            val dt = LocalDateTime.parse(evento.date)
+            dt.isAfter(LocalDateTime.now())
+        } catch (_: Exception) {
+            true
+        }
+    }
+
+    val activeEvents =
+        if (userId != null) eventos.filter { it.creatorId == userId && isFuture(it) } else emptyList()
+    val participatingEvents =
+        eventos.filter { joinedIds.contains(it.id) }
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.Start,
@@ -101,7 +120,7 @@ fun LaneApp(viewModel: EventoViewModel) {
                 onItemSelected = { index ->
                     selectedItemIndex = index
                     when (index) {
-                         0 -> {
+                        0 -> {
                             Toast.makeText(
                                 context,
                                 "Ecrã de pesquisa ainda não implementado.",
@@ -132,6 +151,22 @@ fun LaneApp(viewModel: EventoViewModel) {
             username = username,
             bio = bio,
             profileImageBase64 = profileImageBase64,
+            activeEvents = activeEvents,
+            participatingEvents = participatingEvents,
+            onEditEventClick = { evento ->
+                Toast.makeText(
+                    context,
+                    "Edição de evento ainda não implementada.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            onDeleteEventClick = { evento ->
+                scope.launch {
+                    val ok = viewModel.deleteEvent(evento.id)
+                    val msg = if (ok) "Evento apagado." else "Erro ao apagar evento."
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                }
+            },
             onEditProfileClick = {},
             onChangePasswordClick = {},
             onLogoutClick = {
@@ -210,7 +245,6 @@ fun MapContent(viewModel: EventoViewModel) {
                     )
                 ) {
                     eventos.forEach { evento ->
-                        Log.d("BottomSheet", "imageBase64 length = ${evento.imageBase64?.length}")
                         if (evento.latitude != null && evento.longitude != null) {
                             val lat = evento.latitude.toDouble()
                             val lng = evento.longitude.toDouble()
@@ -273,6 +307,7 @@ fun MapContent(viewModel: EventoViewModel) {
 
                                 when (result) {
                                     is EventoRepository.JoinResult.Success -> {
+                                        sessionManager.addJoinedEvent(selectedEventUi!!.id)
                                         selectedEventUi = selectedEventUi?.copy(
                                             currentParticipants = newCount,
                                             isUserJoined = true
@@ -285,6 +320,7 @@ fun MapContent(viewModel: EventoViewModel) {
                                     }
 
                                     is EventoRepository.JoinResult.AlreadyJoined -> {
+                                        sessionManager.addJoinedEvent(selectedEventUi!!.id)
                                         selectedEventUi = selectedEventUi?.copy(
                                             currentParticipants = newCount,
                                             isUserJoined = true

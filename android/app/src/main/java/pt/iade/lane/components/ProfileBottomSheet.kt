@@ -7,6 +7,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import pt.iade.lane.data.models.Evento
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,6 +18,10 @@ fun ProfileBottomSheet(
     username: String,
     bio: String,
     profileImageBase64: String?,
+    activeEvents: List<Evento>,
+    participatingEvents: List<Evento>,
+    onEditEventClick: (Evento) -> Unit,
+    onDeleteEventClick: (Evento) -> Unit,
     onEditProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onLogoutClick: () -> Unit
@@ -43,6 +48,10 @@ fun ProfileBottomSheet(
             username = username,
             bio = bio,
             profileImageBase64 = profileImageBase64,
+            activeEvents = activeEvents,
+            participatingEvents = participatingEvents,
+            onEditEvent = onEditEventClick,
+            onDeleteEvent = onDeleteEventClick,
             onEditProfile = onEditProfileClick,
             onChangePassword = onChangePasswordClick,
             onLogout = onLogoutClick

@@ -44,8 +44,15 @@ open class EventoViewModel : ViewModel(){
      suspend fun getParticipantsCount(eventId: Int): Int {
          return repository.getParticipantsCount(eventId)
      }
-
      suspend fun joinEvent(eventId: Int, userId: Int): EventoRepository.JoinResult {
          return repository.joinEvent(eventId, userId)
      }
+    suspend fun deleteEvent(eventId: Int): Boolean {
+        val ok = repository.deleteEvento(eventId)
+        if (ok) {
+            carregarEventos()
+        }
+        return ok
+    }
+
 }
