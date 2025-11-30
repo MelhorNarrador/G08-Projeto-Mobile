@@ -1,5 +1,6 @@
 package pt.iade.lane.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,17 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,7 +46,9 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
+import pt.iade.lane.components.BottomBar
 import pt.iade.lane.components.EventDetailsBottomSheet
+import pt.iade.lane.components.ProfileBottomSheet
 import pt.iade.lane.components.toUi
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.EventUi
@@ -65,7 +62,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         LocationUtils.requestLocationPermission(this)
         setContent {
-            MaterialTheme {
+            LaneTheme {
                 val eventoViewModel: EventoViewModel = viewModel()
                 LaneApp(viewModel = eventoViewModel)
             }
@@ -75,41 +72,49 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LaneApp(viewModel: EventoViewModel) {
-    var selectedItemIndex by remember { mutableIntStateOf(0) }
-    val items = listOf("Mapa", "Pesquisar", "Perfil")
     val context = LocalContext.current
+    val sessionManager = remember(context) { SessionManager(context) }
+
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
+    var isProfileSheetOpen by remember { mutableStateOf(false) }
+
+    val name = sessionManager.fetchUserName().orEmpty()
+    val usernameRaw = sessionManager.fetchUserUsername().orEmpty()
+    val username = if (usernameRaw.isNotEmpty()) "@$usernameRaw" else ""
+    val bio = sessionManager.fetchUserBio().orEmpty()
+    val profileImageBase64 = sessionManager.fetchUserProfileImage()
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.Start,
-        bottomBar = {
-            NavigationBar {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedItemIndex == index,
-                        onClick = {
-                            selectedItemIndex = index
-                            Log.d("Navigation", "Clicado: $item")
-                        },
-                        label = { Text(item) },
-                        icon = {
-                            when (item) {
-                                "Mapa" -> Icon(Icons.Default.Map, contentDescription = "Mapa")
-                                "Pesquisar" -> Icon(Icons.Default.Search, contentDescription = "Pesquisar")
-                                "Perfil" -> Icon(Icons.Default.AccountCircle, contentDescription = "Perfil")
-                            }
-                        }
-                    )
-                }
-            }
-        },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                val intent = Intent(context, CreateEventActivity::class.java)
-                context.startActivity(intent)
-            }) {
+            FloatingActionButton(
+                onClick = {
+                    context.startActivity(Intent(context, CreateEventActivity::class.java))
+                }
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Criar Evento")
             }
         },
+        bottomBar = {
+            BottomBar(
+                selectedIndex = selectedItemIndex,
+                onItemSelected = { index ->
+                    selectedItemIndex = index
+                    when (index) {
+                         0 -> {
+                            Toast.makeText(
+                                context,
+                                "Ecrã de pesquisa ainda não implementado.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        1 -> {
+                            isProfileSheetOpen = true
+                        }
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -119,6 +124,27 @@ fun LaneApp(viewModel: EventoViewModel) {
         ) {
             MapContent(viewModel = viewModel)
         }
+
+        ProfileBottomSheet(
+            isOpen = isProfileSheetOpen,
+            onDismiss = { isProfileSheetOpen = false },
+            name = name,
+            username = username,
+            bio = bio,
+            profileImageBase64 = profileImageBase64,
+            onEditProfileClick = {},
+            onChangePasswordClick = {},
+            onLogoutClick = {
+                sessionManager.clearAuth()
+                (context as? Activity)?.let { activity ->
+                    val intent = Intent(activity, LoginActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    activity.startActivity(intent)
+                    activity.finish()
+                }
+            }
+        )
     }
 }
 
@@ -135,6 +161,7 @@ fun MapContent(viewModel: EventoViewModel) {
     var selectedEventUi by remember { mutableStateOf<EventUi?>(null) }
     var isSheetOpen by remember { mutableStateOf(false) }
     val sessionManager = remember(context) { SessionManager(context) }
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(38.736946, -9.142685),
@@ -150,6 +177,7 @@ fun MapContent(viewModel: EventoViewModel) {
             }
         }
     }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -166,14 +194,11 @@ fun MapContent(viewModel: EventoViewModel) {
         isLoading -> {
             CircularProgressIndicator()
         }
-
         errorMessage != null -> {
             Text(text = "Erro: $errorMessage")
         }
-
         else -> {
             Box(modifier = Modifier.fillMaxSize()) {
-
                 GoogleMap(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
@@ -290,6 +315,7 @@ fun MapContent(viewModel: EventoViewModel) {
         }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = true, name = "LaneApp - Preview")
 @Composable
 fun LaneAppPreview() {

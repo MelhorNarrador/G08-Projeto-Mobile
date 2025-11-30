@@ -47,7 +47,9 @@ import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.AuthViewModel
 import pt.iade.lane.ui.viewmodels.LoginState
-
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 class LoginActivity : ComponentActivity() {
     private val utilizadorRepository = UtilizadorRepository()
@@ -60,10 +62,7 @@ class LoginActivity : ComponentActivity() {
 
         setContent {
             LaneTheme {
-                val authViewModel: AuthViewModel = viewModel(
-                    factory = AuthViewModel.Factory(utilizadorRepository, sessionManager)
-                )
-
+                val authViewModel: AuthViewModel = viewModel()
                 val loginState by authViewModel.loginState.collectAsState()
                 val context = LocalContext.current
 
@@ -144,6 +143,7 @@ fun LoginScreen(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Nome de utilizador ou email") },
+                singleLine = true,
                 colors = TextFieldDefaults.colors(
                 ),
                 shape = MaterialTheme.shapes.medium
@@ -155,6 +155,10 @@ fun LoginScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Palavra-passe") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password),
                 colors = TextFieldDefaults.colors(
                 ),
                 shape = MaterialTheme.shapes.medium

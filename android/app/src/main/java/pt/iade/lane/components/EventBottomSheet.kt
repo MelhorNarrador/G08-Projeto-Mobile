@@ -3,7 +3,6 @@ package pt.iade.lane.components
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,8 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Train
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -42,10 +41,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.utils.EventUi
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-
+fun formatEventDateTime(raw: String): String {
+    return try {
+        val ldt = LocalDateTime.parse(raw)
+        val formatter = DateTimeFormatter.ofPattern("'Data:'dd/MM/yy 'Hora:'HH:mm")
+        ldt.format(formatter)
+    } catch (_: Exception) {
+        raw.replace("T", " ")
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailsBottomSheet(
@@ -116,8 +126,12 @@ fun EventDetailsBottomSheet(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                val formattedDateTime = remember(event.dateTime) {
+                    formatEventDateTime(event.dateTime)
+                }
+
                 Text(
-                    text = event.dateTime,
+                    text = formattedDateTime,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -142,7 +156,7 @@ fun EventDetailsBottomSheet(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     NavigationModeButton(
-                        icon = Icons.Filled.DirectionsWalk,
+                        icon = Icons.AutoMirrored.Filled.DirectionsWalk,
                         contentDescription = "A pé",
                         modifier = Modifier.weight(1f),
                         onClick = {
@@ -248,7 +262,7 @@ private fun openGoogleMapsNavigation(
     lng: Double,
     mode: String
 ) {
-    val uri = Uri.parse("google.navigation:q=$lat,$lng&mode=$mode")
+    val uri = "google.navigation:q=$lat,$lng&mode=$mode".toUri()
     val intent = Intent(Intent.ACTION_VIEW, uri).apply {
         setPackage("com.google.android.apps.maps")
     }
@@ -256,14 +270,14 @@ private fun openGoogleMapsNavigation(
     try {
         context.startActivity(intent)
     } catch (_: ActivityNotFoundException) {
-        val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=${
+        val webUri = "https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=${
             when (mode) {
                 "w" -> "walking"
                 "d" -> "driving"
                 "r" -> "transit"
                 else -> "driving"
             }
-        }")
+        }".toUri()
         context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
     }
 }

@@ -11,7 +11,7 @@ import java.math.BigDecimal
 object RetrofitClient {
 
     /*private const val BASE_URL = "http://192.168.1.228:8080/"*/ //Casa fixo Pedro
-   /* private const val BASE_URL = "http://10.208.196.51:8080/"*/ //Faculade
+    /*private const val BASE_URL = "http://10.208.200.52:8080/" Faculade*/
     private const val BASE_URL = "http://192.168.1.92:8080/" //Casa Pedro Wifi
  
 

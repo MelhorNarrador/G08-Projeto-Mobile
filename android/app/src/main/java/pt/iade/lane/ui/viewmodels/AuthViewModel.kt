@@ -1,32 +1,33 @@
 package pt.iade.lane.ui.viewmodels
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.models.LoginRequestDTO
-import pt.iade.lane.data.models.LoginResponseDTO
 import pt.iade.lane.data.models.RegisterRequestDTO
 import pt.iade.lane.data.models.Utilizador
 import pt.iade.lane.data.repository.UtilizadorRepository
 import pt.iade.lane.data.utils.SessionManager
-import java.lang.Exception
 
 class AuthViewModel(
-    private val repository: UtilizadorRepository,
-    private val sessionManager: SessionManager
-) : ViewModel() {
-    private val _registrationState = MutableStateFlow<RegistrationState>(RegistrationState.Idle)
-    val registrationState: StateFlow<RegistrationState> = _registrationState
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-    val loginState: StateFlow<LoginState> = _loginState
-    fun registarUtilizador(request: RegisterRequestDTO) {
-        viewModelScope.launch {
-            _registrationState.value = RegistrationState.Loading
+    application: Application
+) : AndroidViewModel(application) {
+    private val repository = UtilizadorRepository()
+            private val sessionManager = SessionManager(application.applicationContext)
 
+            private val _registrationState =
+        MutableStateFlow<RegistrationState>(RegistrationState.Idle)
+    val registrationState: StateFlow<RegistrationState> = _registrationState
+
+            private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
+    val loginState: StateFlow<LoginState> = _loginState
+
+    fun registarUtilizador(request: RegisterRequestDTO) {
+        viewModelScope.launch { _registrationState.value = RegistrationState.Loading
             try {
                 val utilizadorCriado = repository.registarUtilizador(request)
 
@@ -49,32 +50,37 @@ class AuthViewModel(
 
             try {
                 val response = repository.loginUtilizador(request)
-
                 if (response != null) {
                     sessionManager.saveAuth(response.token, response.userId)
                     pt.iade.lane.data.network.RetrofitClient.authToken = response.token
                     _loginState.value = LoginState.Success
                     Log.d("AuthViewModel", "Login OK! Token configurado: ${response.token}")
+                    try {
+                        val todosUtilizadores = repository.getTodosUtilizadores()
+                        val currentUser: Utilizador? =
+                            todosUtilizadores.firstOrNull { it.id == response.userId }
+
+                        if (currentUser != null) {
+                            sessionManager.saveUserProfile(
+                                name = currentUser.nome,
+                                username = currentUser.username,
+                                email = currentUser.email
+                            )
+                        }
+                    } catch (e: Exception) {
+                        Log.e(
+                            "AuthViewModel",
+                            "Erro ao obter dados do user depois do login: ${e.message}",
+                            e
+                        )
+                    }
                 } else {
                     _loginState.value = LoginState.Error("Email ou password inválidos.")
                 }
-
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Exceção no login: ${e.message}", e)
                 _loginState.value = LoginState.Error(e.message ?: "Erro de rede")
             }
-        }
-    }
-    class Factory(
-        private val repository: UtilizadorRepository,
-        private val sessionManager: SessionManager
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return AuthViewModel(repository, sessionManager) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

@@ -11,6 +11,11 @@ class SessionManager(context: Context) {
     companion object {
         const val USER_TOKEN = "user_token"
         const val USER_ID = "user_id"
+        const val USER_NAME = "user_name"
+        const val USER_USERNAME = "user_username"
+        const val USER_EMAIL = "user_email"
+        const val USER_PROFILE_IMAGE = "user_profile_image"
+        const val USER_BIO = "user_bio"
     }
     fun saveAuth(token: String, userId: Int) {
         val editor = prefs.edit()
@@ -30,4 +35,33 @@ class SessionManager(context: Context) {
         editor.clear()
         editor.apply()
     }
+    fun saveUserProfile(
+        name: String,
+        username: String,
+        email: String
+    ) {
+        prefs.edit()
+            .putString(USER_NAME, name)
+            .putString(USER_USERNAME, username)
+            .putString(USER_EMAIL, email)
+            .apply()
+    }
+    fun fetchUserName(): String? = prefs.getString(USER_NAME, null)
+    fun fetchUserUsername(): String? = prefs.getString(USER_USERNAME, null)
+    fun fetchUserEmail(): String? = prefs.getString(USER_EMAIL, null)
+    fun saveUserProfileImage(base64: String?) {
+        prefs.edit()
+            .putString(USER_PROFILE_IMAGE, base64)
+            .apply()
+    }
+    fun fetchUserProfileImage(): String? =
+        prefs.getString(USER_PROFILE_IMAGE, null)
+    fun saveUserBio(bio: String) {
+        prefs.edit()
+            .putString(USER_BIO, bio)
+            .apply()
+    }
+    fun fetchUserBio(): String? =
+        prefs.getString(USER_BIO, null)
+
 }

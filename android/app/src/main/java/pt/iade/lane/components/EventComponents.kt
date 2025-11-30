@@ -94,6 +94,7 @@ fun EventVisualSection(
         Text("Título", style = MaterialTheme.typography.labelMedium)
         OutlinedTextField(
             value = formState.titulo,
+            singleLine = true,
             onValueChange = { onFormChange(formState.copy(titulo = it)) },
             modifier = Modifier.fillMaxWidth()
         )
