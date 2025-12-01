@@ -75,19 +75,17 @@ fun LaneApp(viewModel: EventoViewModel) {
     val context = LocalContext.current
     val sessionManager = remember(context) { SessionManager(context) }
     val scope = rememberCoroutineScope()
-
     var selectedItemIndex by remember { mutableIntStateOf(0) }
     var isProfileSheetOpen by remember { mutableStateOf(false) }
-
     val eventos by viewModel.eventos.collectAsState()
-
     val name = sessionManager.fetchUserName().orEmpty()
     val usernameRaw = sessionManager.fetchUserUsername().orEmpty()
     val username = if (usernameRaw.isNotEmpty()) "@$usernameRaw" else ""
     val bio = sessionManager.fetchUserBio().orEmpty()
     val profileImageBase64 = sessionManager.fetchUserProfileImage()
     val userId = sessionManager.fetchUserId()
-    val joinedIds = sessionManager.fetchJoinedEvents()
+    val participatingEvents =
+    eventos.filter { sessionManager.fetchJoinedEvents().contains(it.id) }
 
     fun isFuture(evento: pt.iade.lane.data.models.Evento): Boolean {
         return try {
@@ -97,11 +95,8 @@ fun LaneApp(viewModel: EventoViewModel) {
             true
         }
     }
-
     val activeEvents =
         if (userId != null) eventos.filter { it.creatorId == userId && isFuture(it) } else emptyList()
-    val participatingEvents =
-        eventos.filter { joinedIds.contains(it.id) }
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.Start,

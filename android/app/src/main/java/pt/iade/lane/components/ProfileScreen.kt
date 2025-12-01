@@ -290,7 +290,7 @@ private fun ActiveEventRow(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = evento.date,
+                text = formatEventDateTime(evento.date),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -331,7 +331,7 @@ private fun ParticipatingEventRow(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = evento.date,
+                text = formatEventDateTime(evento.date),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
