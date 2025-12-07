@@ -55,7 +55,6 @@ import pt.iade.lane.data.utils.LocationUtils
 import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.EventoViewModel
-import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,17 +85,12 @@ fun LaneApp(viewModel: EventoViewModel) {
     val userId = sessionManager.fetchUserId()
     val participatingEvents =
     eventos.filter { sessionManager.fetchJoinedEvents().contains(it.id) }
-
-    fun isFuture(evento: pt.iade.lane.data.models.Evento): Boolean {
-        return try {
-            val dt = LocalDateTime.parse(evento.date)
-            dt.isAfter(LocalDateTime.now())
-        } catch (_: Exception) {
-            true
-        }
-    }
     val activeEvents =
-        if (userId != null) eventos.filter { it.creatorId == userId && isFuture(it) } else emptyList()
+        if (userId != null) eventos.filter {
+            it.creatorId == userId
+        }
+        else
+            emptyList()
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.Start,
