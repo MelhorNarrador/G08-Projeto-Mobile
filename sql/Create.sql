@@ -41,7 +41,7 @@ CREATE TABLE public.events (
     event_price NUMERIC(10,2) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     max_participants INT NOT NULL,
-    event_image TEXT
+    event_image TEXT,
     
     CONSTRAINT events_event_visibility_check CHECK (event_visibility IN ('public', 'private', 'invite')),
     CONSTRAINT fk_events_category FOREIGN KEY (event_category_id) REFERENCES public.filters(filters_id) ON DELETE SET NULL,
@@ -102,3 +102,4 @@ CREATE INDEX idx_invitations_receiver_id ON public.invitations(receiver_id);
 CREATE INDEX idx_event_participants_event_id ON public.event_participants(event_id);
 
 CREATE INDEX idx_event_participants_user_id ON public.event_participants(user_id);
+
