@@ -8,7 +8,8 @@ VALUES
 -- 2. Inserir Categorias (Filtros)
 INSERT INTO public.filters (filters_name)
 VALUES
-('Música'), ('Arte'), ('Comida'), ('Desporto');
+('Desporto'), ('Música & Concertos'), ('Estudos & Workshops'), ('Networking & Carreira'), ('Social & Noite'), ('Gaming & eSports'), ('Arte & Cultura'), ('Voluntariado & Comunidade'), ('Tecnologia & Startups'), ('Saúde & Bem-estar');
+
 
 -- 3. Inserir Eventos
 -- (Assume que 'pedro' tem account_id = 1, 'ana' tem id = 2, 'Música' tem id = 1)

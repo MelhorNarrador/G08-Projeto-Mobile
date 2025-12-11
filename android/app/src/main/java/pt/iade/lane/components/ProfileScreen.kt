@@ -156,18 +156,6 @@ fun ProfileScreenContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        ProfileOptionItem(
-            label = "Editar perfil",
-            onClick = onEditProfile
-        )
-
-        ProfileOptionItem(
-            label = "Alterar palavra-passe",
-            onClick = onChangePassword
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         Button(
             onClick = onLogout,
             modifier = Modifier
@@ -340,53 +328,46 @@ private fun ParticipatingEventRow(
     onInfoClick: () -> Unit,
     onLeaveClick: () -> Unit
 ) {
-    Column(
+    Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        tonalElevation = 1.dp
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = evento.title,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                Text(
-                    text = formatEventDateTime(evento.date),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+            Text(
+                text = evento.title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
 
-        Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            TextButton(
-                onClick = onInfoClick,
-                modifier = Modifier.padding(end = 8.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Info")
-            }
+            Text(
+                text = formatEventDateTime(evento.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-            TextButton(
-                onClick = onLeaveClick,
-                shape = RoundedCornerShape(8.dp)
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Sair")
+                TextButton(onClick = onInfoClick) {
+                    Text("Info")
+                }
+                TextButton(onClick = onLeaveClick) {
+                    Text("Sair")
+                }
             }
         }
     }
 }
-
 @Composable
 private fun ProfileOptionItem(
     label: String,

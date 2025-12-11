@@ -55,6 +55,8 @@ import pt.iade.lane.data.utils.LocationUtils
 import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.EventoViewModel
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import pt.iade.lane.components.EventCategoryColors
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -282,10 +284,12 @@ fun MapContent(
 
                             if (lat != 0.0 || lng != 0.0) {
                                 val posicao = LatLng(lat, lng)
+                                val markerHue = EventCategoryColors.hueForCategory(evento.categoryId)
                                 Marker(
                                     state = MarkerState(position = posicao),
                                     title = evento.title,
                                     snippet = evento.location,
+                                    icon = BitmapDescriptorFactory.defaultMarker(markerHue),
                                     onClick = {
                                         scope.launch {
                                             val count = viewModel.getParticipantsCount(evento.id)
