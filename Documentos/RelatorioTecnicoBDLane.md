@@ -99,7 +99,7 @@ A tabela `invitations` liga eventos a dois utilizadores: o que envia e o que rec
   Cada linha em `invitations` representa “o utilizador X convidou o utilizador Y para o evento Z”.  
   O campo `status` (`pending`, `accepted`, `rejected`) indica o estado atual desse convite.
 
-### 6. Resumo Global das Relações
+### 2.6. Resumo Global das Relações
 
 - **Utilizador cria eventos:** `user_details` 1 — N `events`
 - **Evento pertence a uma categoria:** `filters` 1 — N `events`
@@ -113,7 +113,8 @@ Esta descrição cobre todas as relações presentes no diagrama ER apresentado.
 
 ## 3. Diagrama ER
 
-  
+![DiagramaER](imgs/DiagramaErLane.png)
+
 ---
 
 ## 4. Modelo Físico (Dicionário de Dados)
