@@ -117,7 +117,7 @@ Esta descrição cobre todas as relações presentes no diagrama ER apresentado.
 
 ---
 
-## 4. Modelo Físico (Dicionário de Dados)
+## 4. Dicionário de Dados
 
 Abaixo está a descrição detalhada de cada tabela na sua forma final.
 
