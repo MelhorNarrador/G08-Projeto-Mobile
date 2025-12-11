@@ -6,13 +6,14 @@
 
 ---
 
+## 1. Introdução
 A aplicação **Lane** é uma plataforma social focada na descoberta, criação e participação em eventos. O utilizador pode:
 
 - Criar eventos;
 - Juntar-se como participante a eventos existentes.
 - Visualizar eventos no mundo todo
 
-A base de dados foi implementada em **PostgreSQL**, com o objetivo de garantir:
+As ferramentas utilizadas para o desenvolvimento e gestão desta base de dados foram o **PostgreSQL** e o gestor de base de dados **pgAdmin** com o objetivo de garantir:
 
 - **Integridade** dos dados
 - **Escalabilidade e performance** (através de índices nas colunas mais usadas em `JOIN`/`WHERE`);
