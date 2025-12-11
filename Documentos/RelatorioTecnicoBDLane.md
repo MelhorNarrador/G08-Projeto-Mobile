@@ -33,18 +33,86 @@ A base de dados é organizada em torno de 6 entidades principais:
 - `invitations` – Convites enviados para eventos;
 - `event_participants` – Participações dos utilizadores em eventos.
 
-### 2.1. Relações principais
-**Um utilizador** (`user_details`) pode:
-  - Criar **muitos eventos** → relação 1-N entre `user_details (account_id)` e `events (event_creator_id)`;
-  - Seguir **muitos outros utilizadores** → relação N-N auto-referenciada via `followers`;
-  - Participar em **muitos eventos** → relação N-N via `event_participants`;
-  - Enviar/receber **muitos convites** → relações 1-N entre `user_details` e `invitations`.
+### 2.1. `user_details` — `events`  (Cria / É criado por)
 
-- **Um evento** pode:
-  - Ter **muitos participantes** (`event_participants`);
-  - Ter **muitos convites** (`invitations`).
+- **Chave estrangeira:** `events.event_creator_id` → `user_details.account_id`
+- **Cardinalidade:**
+  - Um **utilizador** pode **criar 0..N eventos**.
+  - Cada **evento** é criado por **exatamente 1 utilizador**.
+- **Interpretação:**  
+  Sempre que um evento é registado, o campo `event_creator_id` guarda o `account_id` do utilizador que o criou.
 
-  - **Um evento** (`events`) pertence a **uma categoria** (`filters`), através da FK `event_category_id`.
+  ### 2.2. `filters` — `events`  (Classifica / Pertence a)
+
+- **Chave estrangeira:** `events.event_category_id` → `filters.filters_id`
+- **Cardinalidade:**
+  - Um **filtro/categoria** pode estar associado a **0..N eventos**.
+  - Cada **evento** pertence a **no máximo 1 categoria**.
+- **Interpretação:**  
+  As linhas de `filters` representam categorias (ex.: “Desporto”, “Música”, “Gaming & eSports”).  
+  A cada evento é associada uma categoria através de `event_category_id`, permitindo filtrar e agrupar eventos por tipo.
+
+### 2.3. `user_details` — `followers`  (Segue / É seguido)
+
+Relação auto-referenciada entre utilizadores, implementada pela tabela `followers`.
+
+- **Chaves estrangeiras:**
+  - `followers.follower_id` → `user_details.account_id`
+  - `followers.following_id` → `user_details.account_id`
+- **Cardinalidade:**
+  - Um **utilizador** pode **seguir 0..N outros utilizadores**.
+  - Um **utilizador** pode ser **seguido por 0..N utilizadores**.
+- **Interpretação:**  
+  Cada registo em `followers` representa uma relação “A segue B”.  
+  A combinação `(follower_id, following_id)` deve ser única para evitar follows duplicados, e há um `CHECK` para impedir que alguém se siga a si próprio.
+
+### 2.4. `user_details` — `event_participants` — `events`  (Participa / Tem participantes)
+
+Relação N-N entre utilizadores e eventos, materializada pela tabela `event_participants`.
+
+- **Chaves estrangeiras:**
+  - `event_participants.user_id` → `user_details.account_id`
+  - `event_participants.event_id` → `events.event_id`
+- **Cardinalidade lógica:**
+  - Um **utilizador** pode **participar em 0..N eventos**.
+  - Um **evento** pode **ter 0..N participantes**.
+- **Cardinalidade física por lado:**
+  - Um registo em `event_participants` referencia **1 utilizador** e **1 evento**.
+- **Interpretação:**  
+  Sempre que um utilizador se inscreve num evento, é criado um registo em `event_participants`.  
+  A combinação `(event_id, user_id)` deve é única, garantindo que um utilizador não entra mais do que uma vez no mesmo evento.
+
+### 2.5. `events` — `invitations` — `user_details`  (Tem convites / Envia / Recebe)
+
+A tabela `invitations` liga eventos a dois utilizadores: o que envia e o que recebe o convite.
+
+- **Chaves estrangeiras:**
+  - `invitations.event_id` → `events.event_id`
+  - `invitations.sender_id` → `user_details.account_id`
+  - `invitations.receiver_id` → `user_details.account_id`
+- **Cardinalidade:**
+  - Um **evento** pode ter **0..N convites** associados.
+  - Um **utilizador** pode **enviar 0..N convites**.
+  - Um **utilizador** pode **receber 0..N convites**.
+  - Cada **convite** refere-se a **1 evento**, **1 emissor** e **1 recetor**.
+- **Interpretação:**  
+  Cada linha em `invitations` representa “o utilizador X convidou o utilizador Y para o evento Z”.  
+  O campo `status` (`pending`, `accepted`, `rejected`) indica o estado atual desse convite.
+
+### 6. Resumo Global das Relações
+
+- **Utilizador cria eventos:** `user_details` 1 — N `events`
+- **Evento pertence a uma categoria:** `filters` 1 — N `events`
+- **Utilizadores seguem utilizadores:** `user_details` N — N `user_details` via `followers`
+- **Utilizadores participam em eventos:** `user_details` N — N `events` via `event_participants`
+- **Convites envolvem eventos e dois utilizadores:** `events` 1 — N `invitations` e `user_details` 1 — N `invitations` (como `sender` e `receiver`)
+
+Esta descrição cobre todas as relações presentes no diagrama ER apresentado.
+
+---
+
+## 3. Diagrama ER
+
   
 ---
 
