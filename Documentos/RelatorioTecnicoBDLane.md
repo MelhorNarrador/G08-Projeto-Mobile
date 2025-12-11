@@ -48,7 +48,7 @@ A base de dados é organizada em torno de 6 entidades principais:
 
 ---
 
-## 3\. Modelo Físico (Dicionário de Dados)
+## 3. Modelo Físico (Dicionário de Dados)
 
 Abaixo está a descrição detalhada de cada tabela na sua forma final.
 
