@@ -22,7 +22,7 @@ O ficheiro `Create.sql` contém o script de criação completo da base de dados 
 
 ---
 
-## 2. Diagrama Entidade-Relação (Descrição)
+## 2. Diagrama Entidade-Relação (Dicionario de dados) 
 
 A base de dados é organizada em torno de 6 entidades principais:
 
