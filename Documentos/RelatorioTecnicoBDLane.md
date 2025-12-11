@@ -239,7 +239,7 @@ A base de dados da aplicação Lane foi desenhada para suportar os principais pr
 - Convites para eventos;
 - Gestão de participações e lotações.
 
-O modelo implementa regras de integridade relevantes diretamente na camada de dados (`CHECK`, `UNIQUE`, `FOREIGN KEY`), reduzindo a probabilidade de estados inconsistentes, como:
+O modelo implementa regras de integridade relevantes diretamente na camada de dados (`CHECK`, `UNIQUE`), reduzindo a probabilidade de estados inconsistentes, como:
 
 - O mesmo utilizador seguir outro mais do que uma vez;
 - Participações duplicadas num evento;
