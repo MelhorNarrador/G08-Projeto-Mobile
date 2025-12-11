@@ -48,11 +48,11 @@ A base de dados é organizada em torno de 6 entidades principais:
 
 ---
 
-## 3. Modelo Físico (Dicionário de Dados)
+## 4. Modelo Físico (Dicionário de Dados)
 
 Abaixo está a descrição detalhada de cada tabela na sua forma final.
 
-### 3.1. Tabela: `user_details`
+### 4.1. Tabela: `user_details`
 
 **Propósito:** Tabela central que armazena a informação de cada conta de utilizador.
 
@@ -69,7 +69,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `account_dob` | `DATE` | | **Adicionada.** Data de Nascimento. Usada para calcular a idade dinamicamente (evita dados estáticos). |
 | `account_gender` | `VARCHAR(30)` | `CHECK` | **Adicionada.** Género do utilizador. A `CHECK` constraint garante a integridade dos dados do *dropdown menu*. |
 
-### 3.2. Tabela: `filters`
+### 4.2. Tabela: `filters`
 
 **Propósito:** Armazena as categorias (Tipos de Evento) para o *dropdown menu* de criação de eventos.
 
@@ -78,7 +78,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `filters_id` | `SERIAL` | `PK` | Identificador único da categoria. |
 | `filters_name` | `VARCHAR(50)` | `NOT NULL`, `UNIQUE` | O nome da categoria (ex: "Música", "Cultural", "Político"). |
 
-### 3.3. Tabela: `events`
+### 4.3. Tabela: `events`
 
 **Propósito:** Armazena a informação de todos os eventos criados na plataforma.
 
@@ -100,9 +100,9 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `event_image` | `TEXT` | `–` | Imagem associada ao evento (Base64) |
 
 
-### 3.4. Tabela: `followers`
+### 4.4. Tabela: `followers`
 
-**Propósito:** Tabela de junção que armazena a relação "seguir" (mão única). É a fonte da verdade para a lógica social.
+**Propósito:** Tabela de junção que armazena a relação "seguir".
 
 | Coluna | Tipo | PK/FK/Constraint | Descrição |
 | --- | --- | --- | --- |
@@ -111,9 +111,9 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `following_id` | `INT` | `NOT NULL`, `FK` (user) | O utilizador que *é seguido*. |
 | `(follower_id, following_id)` | | `UNIQUE` | Garante que A só pode seguir B uma vez. |
 
-### 3.5. Tabela: `event_participants`
+### 4.5. Tabela: `event_participants`
 
-**Propósito:** Tabela de junção que armazena quem "aderiu" a um evento (o botão "Participar").
+**Propósito:** Tabela de junção que armazena quem "aderiu" a um evento.
 
 | Coluna | Tipo | PK/FK/Constraint | Descrição |
 | --- | --- | --- | --- |
@@ -122,7 +122,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `user_id` | `INT` | `NOT NULL`, `FK` (user) | O utilizador que aderiu. |
 | `(event_id, user_id)` | | `UNIQUE` | Garante que um utilizador não pode aderir duas vezes. |
 
-### 3.6. Tabela: `invitations`
+### 4.6. Tabela: `invitations`
 
 **Propósito:** Tabela de junção que gere convites para eventos *privados* ou por *convite*.
 
