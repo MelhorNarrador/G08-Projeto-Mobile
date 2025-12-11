@@ -4,6 +4,8 @@
 **Unidade Curricular:** Base De Dados
 **Ano Letivo:** 2024 / 2025
 
+![Logo LADE](imgs/logo_lane.png)
+
 ---
 
 ## 1. Introdução
