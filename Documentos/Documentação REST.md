@@ -1,10 +1,10 @@
-##1. Endpoints de Utilizadores
+###1. Endpoints de Utilizadores
 ### Listar todos os utilizadores
 **GET** `/api/users`
 **Exemplo**
 ```json
 [{"account_id": 1, "account_name": "Filomeno Sabino", "account_email": "filomenosabino@gmail.com}]
-
+---
 ### Criar utilizadores
 **POST** `/api/users/create/users`
 **Exemplo**
