@@ -113,7 +113,7 @@ Esta descrição cobre todas as relações presentes no diagrama ER apresentado.
 
 ## 3. Diagrama ER
 
-![DiagramaER](imgs/DiagramaErLane.png)
+![DiagramaER](imgs/DiagramaErLane.jpeg)
 
 ---
 
