@@ -227,4 +227,30 @@ A performance é crítica para uma aplicação móvel. Uma query lenta no *backe
 * `idx_event_participants_event_id ON public.event_participants(event_id)`
 * `idx_event_participants_user_id ON public.event_participants(user_id)`
 
+---
+
+##5. Considerações Finais
+
+A base de dados da aplicação Lane foi desenhada para suportar os principais processos da plataforma:
+
+- Gestão de contas de utilizador;
+- Criação e categorização de eventos;
+- Relações sociais (seguidores/seguidos);
+- Convites para eventos;
+- Gestão de participações e lotações.
+
+O modelo implementa regras de integridade relevantes diretamente na camada de dados (`CHECK`, `UNIQUE`, `FOREIGN KEY`), reduzindo a probabilidade de estados inconsistentes, como:
+
+- O mesmo utilizador seguir outro mais do que uma vez;
+- Participações duplicadas num evento;
+- Convites repetidos entre o mesmo emissor, recetor e evento;
+- Eventos com visibilidade inválida.
+
+A utilização de índices nas colunas de junção e pesquisa garante um melhor desempenho, principalmente em operações de listagem de eventos, contagem de participantes e consulta do grafo social.
+
+Este relatório documenta a versão atual da base de dados e serve como referência técnica para:
+
+- Desenvolvimento e manutenção futura do backend
+- Evolução da aplicação móvel
+- Avaliação académica do projeto Lane no contexto da disciplina de Bases de Dados
 
