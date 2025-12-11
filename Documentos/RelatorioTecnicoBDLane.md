@@ -18,7 +18,7 @@ A aplicação **Lane** é uma plataforma social focada na descoberta, criação 
 As ferramentas utilizadas para o desenvolvimento e gestão desta base de dados foram o **PostgreSQL** e o gestor de base de dados **pgAdmin** com o objetivo de garantir:
 
 - **Integridade** dos dados
-- **Escalabilidade e performance** (através de índices nas colunas mais usadas em `JOIN`/`WHERE`);
+- **Escalabilidade e performance** (através de índices nas colunas mais utilizadas);
 - **Coerência com o backend** da API
 
 O ficheiro `Create.sql` contém o script de criação completo da base de dados (tabelas, constraints e índices), servindo de referência principal para este relatório.
