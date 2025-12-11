@@ -24,6 +24,7 @@ fun ProfileBottomSheet(
     onDeleteEventClick: (Evento) -> Unit,
     onEditProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
+    onParticipatingEventLeaveClick: (Evento) -> Unit,
     onLogoutClick: () -> Unit
 ) {
     if (!isOpen) return
@@ -54,6 +55,7 @@ fun ProfileBottomSheet(
             onDeleteEvent = onDeleteEventClick,
             onEditProfile = onEditProfileClick,
             onChangePassword = onChangePasswordClick,
+            onParticipatingEventLeave = onParticipatingEventLeaveClick,
             onLogout = onLogoutClick
         )
     }

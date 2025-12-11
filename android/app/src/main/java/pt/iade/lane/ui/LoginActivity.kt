@@ -59,7 +59,11 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         sessionManager = SessionManager(applicationContext)
-
+        if (sessionManager.isLoggedIn()) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
         setContent {
             LaneTheme {
                 val authViewModel: AuthViewModel = viewModel()

@@ -1,11 +1,11 @@
 package com.backend.lane.controllers;
 
 import com.backend.lane.domain.Event;
-import com.backend.lane.service.EventService;
-import org.springframework.web.bind.annotation.*;
 import com.backend.lane.service.EParticipantsService;
+import com.backend.lane.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,11 +49,36 @@ public class EventController {
             eParticipantsService.addParticipantToEvent(eventId, userId);
             return ResponseEntity.ok("Participação registada com sucesso.");
         } catch (IllegalStateException e) {
-            // já inscrito
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao registar participação.");
         }
     }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Event> updateEvent(
+            @PathVariable Integer id,
+            @RequestBody Event event
+    ) {
+        try {
+            Event updated = eventService.updateEvent(id, event);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @DeleteMapping("/{id}/participants/leave")
+    public ResponseEntity<String> leaveEvent(
+            @PathVariable("id") Integer eventId,
+            @RequestParam("userId") Integer userId
+    ) {
+        try {
+            eParticipantsService.deleteParticipantFromEvent(eventId, userId);
+            return ResponseEntity.ok("Participação removida com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao remover participação.");
+        }
+    }
+
 }

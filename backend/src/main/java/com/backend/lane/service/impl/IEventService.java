@@ -32,4 +32,13 @@ public class IEventService implements EventService {
     public void deleteEvent(Integer id) {
         eventRepository.deleteById(id);
     }
+
+    @Override
+    public Event updateEvent(Integer id, Event updatedEvent) {
+        if (!eventRepository.existsById(id)) {
+            throw new RuntimeException("Evento não encontrado");
+        }
+        updatedEvent.setEvent_id(id);
+        return eventRepository.save(updatedEvent);
+    }
 }

@@ -32,7 +32,7 @@ public class IEventParticipants implements EParticipantsService {
 
     @Override
     public void deleteParticipantFromEvent(Integer event_id, Integer participant_id) {
-
+        eventParticipantsRepository.deleteByEventAndUser(event_id, participant_id);
     }
 
     @Override

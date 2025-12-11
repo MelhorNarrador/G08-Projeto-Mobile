@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.models.CreateEventDTO
@@ -63,5 +62,22 @@ class CreateEventViewModel(
 
     fun getCreatorId(): Int? {
         return sessionManager.fetchUserId()
+    }
+    fun updateEvent(eventId: Int, dto: CreateEventDTO) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _isSuccess.value = false
+            try {
+                val ok = repository.updateEvento(eventId, dto)
+                _isSuccess.value = ok
+                if (!ok) {
+                    _errorMessage.value = "Erro ao atualizar evento."
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Erro desconhecido ao atualizar evento."
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }

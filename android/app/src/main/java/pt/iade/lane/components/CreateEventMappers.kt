@@ -3,6 +3,8 @@ package pt.iade.lane.components
 import pt.iade.lane.data.models.CreateEventDTO
 import pt.iade.lane.data.models.Filtro
 import java.math.BigDecimal
+import pt.iade.lane.data.models.Evento
+
 
 data class EventFormState(
     val titulo: String = "",
@@ -17,6 +19,41 @@ data class EventFormState(
     val data: String = "",
     val hora: String = ""
 )
+
+fun Evento.toFormState(): EventFormState {
+    // Exemplo típico: "2025-01-10T21:00:00"
+    val (dataPart, timePartRaw) = if (date.contains("T")) {
+        val parts = date.split("T")
+        val data = parts.getOrNull(0) ?: ""
+        val hora = parts.getOrNull(1) ?: ""
+        data to hora
+    } else {
+        // fallback se o backend algum dia mandar sem 'T'
+        date to ""
+    }
+
+    // timePartRaw: "21:00:00" -> queremos só "21:00"
+    val horaPart = if (timePartRaw.length >= 5) {
+        timePartRaw.substring(0, 5)
+    } else {
+        ""
+    }
+
+    return EventFormState(
+        titulo = title,
+        descricao = description ?: "",
+        preco = price.toPlainString(),
+        maxParticipantes = maxParticipants.toString(),
+        localizacaoTexto = location ?: "",
+        latitude = latitude ?: BigDecimal.ZERO,
+        longitude = longitude ?: BigDecimal.ZERO,
+        selectedFiltro = null,
+        selectedVisibilidade = visibility,
+        data = dataPart,
+        hora = horaPart
+    )
+}
+
 fun validateCreateEventForm(state: EventFormState): String? {
     if (state.titulo.isBlank()) return "O título é obrigatório"
     if (state.data.isBlank()) return "A data é obrigatória"

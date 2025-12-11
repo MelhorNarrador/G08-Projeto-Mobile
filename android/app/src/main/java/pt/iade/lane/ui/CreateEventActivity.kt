@@ -52,6 +52,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import pt.iade.lane.components.EventFormState
 import pt.iade.lane.components.EventVisualSection
 import pt.iade.lane.components.toCreateEventDTO
+import pt.iade.lane.components.toFormState
 import pt.iade.lane.components.uriToBase64
 import pt.iade.lane.components.validateCreateEventForm
 import pt.iade.lane.data.models.CreateEventDTO
@@ -62,7 +63,9 @@ import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.CreateEventViewModel
 import java.math.BigDecimal
 import java.util.Calendar
+import pt.iade.lane.data.models.Evento
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
 class CreateEventActivity : ComponentActivity() {
 
@@ -72,8 +75,14 @@ class CreateEventActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val mode = intent.getStringExtra("mode") ?: "create"
+        val eventToEdit = intent.getParcelableExtra<Evento>("event")
+
         try {
-            val appInfo = packageManager.getApplicationInfo(packageName, android.content.pm.PackageManager.GET_META_DATA)
+            val appInfo = packageManager.getApplicationInfo(
+                packageName,
+                android.content.pm.PackageManager.GET_META_DATA
+            )
             val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
             if (!Places.isInitialized() && apiKey != null) {
                 Places.initialize(applicationContext, apiKey)
@@ -93,6 +102,7 @@ class CreateEventActivity : ComponentActivity() {
                         }
                     }
                 )
+
                 val filters by viewModel.filters.collectAsState()
                 val isLoading by viewModel.isLoading.collectAsState()
                 val isSuccess by viewModel.isSuccess.collectAsState()
@@ -103,10 +113,14 @@ class CreateEventActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     viewModel.loadFilters()
                 }
-
                 LaunchedEffect(isSuccess) {
                     if (isSuccess) {
-                        Toast.makeText(context, "Evento criado com sucesso!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            if (mode == "edit") "Evento atualizado com sucesso!"
+                            else "Evento criado com sucesso!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         finish()
                     }
                 }
@@ -121,10 +135,18 @@ class CreateEventActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Criar Evento") },
+                            title = {
+                                Text(
+                                    if (mode == "edit") "Editar Evento"
+                                    else "Criar Evento"
+                                )
+                            },
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Voltar"
+                                    )
                                 }
                             }
                         )
@@ -135,14 +157,22 @@ class CreateEventActivity : ComponentActivity() {
                         isLoading = isLoading,
                         filterOptions = filters,
                         creatorId = viewModel.getCreatorId(),
-                        onCreateClick = { eventDTO -> viewModel.createEvent(eventDTO) }
+                        mode = mode,
+                        existingEvent = eventToEdit,
+                        onSubmitClick = { eventDTO ->
+                            if (mode == "edit" && eventToEdit != null) {
+                                viewModel.updateEvent(eventToEdit.id, eventDTO)
+                            } else {
+
+                                viewModel.createEvent(eventDTO)
+                            }
+                        }
                     )
                 }
             }
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
@@ -150,19 +180,32 @@ fun CreateEventScreen(
     isLoading: Boolean,
     filterOptions: List<Filtro>,
     creatorId: Int?,
-    onCreateClick: (CreateEventDTO) -> Unit
+    mode: String,
+    existingEvent: Evento?,
+    onSubmitClick: (CreateEventDTO) -> Unit
 ) {
     val context = LocalContext.current
-    var formState by remember { mutableStateOf(EventFormState()) }
+
+    var formState by remember {
+        mutableStateOf(
+            if (existingEvent != null) existingEvent.toFormState()
+            else EventFormState()
+        )
+    }
+
     var tipoEventoExpanded by remember { mutableStateOf(false) }
     var privacidadeExpanded by remember { mutableStateOf(false) }
+
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
     val visibilidadeOptions = listOf("public", "private")
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri != null) selectedImageUri = uri
     }
+
     val placesLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -180,15 +223,34 @@ fun CreateEventScreen(
                     )
                 }
             }
+
             AutocompleteActivity.RESULT_ERROR -> {
                 result.data?.let { intent ->
                     val status = Autocomplete.getStatusFromIntent(intent)
-                    Toast.makeText(context, "Erro Google: ${status.statusMessage}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        "Erro Google: ${status.statusMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
     }
-    Column(modifier = modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+    LaunchedEffect(existingEvent, filterOptions) {
+        if (mode == "edit" && existingEvent != null && filterOptions.isNotEmpty()) {
+            val matching = filterOptions.find { it.id == existingEvent.categoryId }
+            if (matching != null) {
+                formState = formState.copy(selectedFiltro = matching)
+            }
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         EventVisualSection(
             formState = formState,
             onFormChange = { formState = it },
@@ -210,57 +272,57 @@ fun CreateEventScreen(
             onPrivacidadeExpandedChange = { privacidadeExpanded = it },
             visibilidadeOptions = visibilidadeOptions,
             onLocalizacaoClick = {
-                        try {
-                            val fields = listOf(
-                                Place.Field.ID,
-                                Place.Field.NAME,
-                                Place.Field.ADDRESS,
-                                Place.Field.LAT_LNG
-                            )
-                            val intent = Autocomplete.IntentBuilder(
-                                AutocompleteActivityMode.OVERLAY,
-                                fields
-                            ).build(context)
-                            placesLauncher.launch(intent)
-                        } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                "Erro: ${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                try {
+                    val fields = listOf(
+                        Place.Field.ID,
+                        Place.Field.NAME,
+                        Place.Field.ADDRESS,
+                        Place.Field.LAT_LNG
+                    )
+                    val intent = Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.OVERLAY,
+                        fields
+                    ).build(context)
+                    placesLauncher.launch(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        "Erro: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+            onDataClick = {
+                val calendar = Calendar.getInstance()
+                DatePickerDialog(
+                    context,
+                    { _, y, m, d ->
+                        val dataStr =
+                            "$y-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}"
+                        formState = formState.copy(data = dataStr)
                     },
-                    onDataClick = {
-                        val calendar = Calendar.getInstance()
-                        DatePickerDialog(
-                            context,
-                            { _, y, m, d ->
-                                val dataStr =
-                                    "$y-${(m + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}"
-                                formState = formState.copy(data = dataStr)
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                        ).show()
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            },
+            onHoraClick = {
+                val calendar = Calendar.getInstance()
+                TimePickerDialog(
+                    context,
+                    { _, h, m ->
+                        val horaStr =
+                            "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
+                        formState = formState.copy(hora = horaStr)
                     },
-                    onHoraClick = {
-                        val calendar = Calendar.getInstance()
-                        TimePickerDialog(
-                            context,
-                            { _, h, m ->
-                                val horaStr =
-                                    "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
-                                formState = formState.copy(hora = horaStr)
-                            },
-                            calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE),
-                            true
-                        ).show()
-                    }
-                )
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+            }
+        )
 
-                Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = {
@@ -272,14 +334,14 @@ fun CreateEventScreen(
 
                 val imagemString = selectedImageUri?.let { uri ->
                     uriToBase64(context, uri)
-                }
+                } ?: existingEvent?.imageBase64
 
                 val eventDTO = formState.toCreateEventDTO(
                     creatorId = creatorId ?: 0,
                     imagemBase64 = imagemString
                 )
 
-                onCreateClick(eventDTO)
+                onSubmitClick(eventDTO)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
@@ -287,8 +349,12 @@ fun CreateEventScreen(
             if (isLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp))
             } else {
-                Text("Criar Evento")
+                Text(
+                    if (mode == "edit") "Guardar alterações"
+                    else "Criar Evento"
+                )
             }
         }
     }
 }
+

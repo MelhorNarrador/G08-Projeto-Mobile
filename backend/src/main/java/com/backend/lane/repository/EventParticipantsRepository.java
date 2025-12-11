@@ -2,8 +2,10 @@ package com.backend.lane.repository;
 
 import com.backend.lane.domain.EventParticipants;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface EventParticipantsRepository extends JpaRepository<EventParticipants, Integer> {
 
@@ -12,4 +14,9 @@ public interface EventParticipantsRepository extends JpaRepository<EventParticip
 
     @Query("SELECT COUNT(ep) FROM EventParticipants ep WHERE ep.event_id = :eventId AND ep.user_id = :userId")
     long countByEventAndUser(@Param("eventId") Integer eventId, @Param("userId") Integer userId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM EventParticipants ep WHERE ep.event_id = :eventId AND ep.user_id = :userId")
+    void deleteByEventAndUser(@Param("eventId") Integer eventId, @Param("userId") Integer userId);
 }

@@ -88,4 +88,15 @@ class SessionManager(context: Context) {
         val set = prefs.getStringSet(USER_JOINED_EVENTS, emptySet()) ?: emptySet()
         return set.mapNotNull { it.toIntOrNull() }.toSet()
     }
+    fun removeJoinedEvent(eventId: Int) {
+        val current = prefs.getStringSet(USER_JOINED_EVENTS, emptySet())?.toMutableSet()
+            ?: mutableSetOf()
+        current.remove(eventId.toString())
+        prefs.edit()
+            .putStringSet(USER_JOINED_EVENTS, current)
+            .apply()
+    }
+    fun isLoggedIn(): Boolean {
+        return fetchUserId() != null
+    }
 }

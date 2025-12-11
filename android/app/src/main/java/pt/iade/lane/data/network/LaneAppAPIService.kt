@@ -8,6 +8,9 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import pt.iade.lane.data.models.CreateEventDTO
+import pt.iade.lane.data.models.Evento
+import retrofit2.http.PUT
 
 interface LaneAppAPIService {
     @GET("api/users/users")
@@ -61,9 +64,6 @@ interface LaneAppAPIService {
     @POST("api/eparticipants/add")
     suspend fun addParticipant(@Body participants: EventParticipants): Response<String>
 
-    @DELETE("api/eparticipants/{id}")
-    suspend fun deleteParticipant(@Path("id") id: Int): Response<String>
-
     @GET("api/events/{id}/participants/count")
     suspend fun getParticipantsCount(
         @Path("id") eventId: Int
@@ -74,4 +74,17 @@ interface LaneAppAPIService {
         @Path("id") eventId: Int,
         @Query("userId") userId: Int
     ): Response<Unit>
+
+    @DELETE("api/events/{id}/participants/leave")
+    suspend fun leaveEvent(
+        @Path("id") eventId: Int,
+        @Query("userId") userId: Int
+    ): Response<Unit>
+
+    @PUT("api/events/update/{id}")
+    suspend fun updateEvent(
+        @Path("id") eventId: Int,
+        @Body dto: CreateEventDTO
+    ): Response<Evento>
+
 }

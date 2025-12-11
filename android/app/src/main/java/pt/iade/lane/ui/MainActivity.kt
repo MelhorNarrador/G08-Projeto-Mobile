@@ -83,8 +83,11 @@ fun LaneApp(viewModel: EventoViewModel) {
     val bio = sessionManager.fetchUserBio().orEmpty()
     val profileImageBase64 = sessionManager.fetchUserProfileImage()
     val userId = sessionManager.fetchUserId()
-    val participatingEvents =
-    eventos.filter { sessionManager.fetchJoinedEvents().contains(it.id) }
+    var joinedEventsVersion by remember { mutableIntStateOf(0) }
+    val participatingEvents = remember(eventos, joinedEventsVersion) {
+        val joinedIds = sessionManager.fetchJoinedEvents()
+        eventos.filter { joinedIds.contains(it.id) }
+    }
     val activeEvents =
         if (userId != null) eventos.filter {
             it.creatorId == userId
@@ -130,7 +133,12 @@ fun LaneApp(viewModel: EventoViewModel) {
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            MapContent(viewModel = viewModel)
+            MapContent(
+                viewModel = viewModel,
+                onJoinedEventsChanged = {
+                    joinedEventsVersion++
+                }
+            )
         }
 
         ProfileBottomSheet(
@@ -143,17 +151,52 @@ fun LaneApp(viewModel: EventoViewModel) {
             activeEvents = activeEvents,
             participatingEvents = participatingEvents,
             onEditEventClick = { evento ->
-                Toast.makeText(
-                    context,
-                    "Edição de evento ainda não implementada.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                val intent = Intent(context, CreateEventActivity::class.java).apply {
+                    putExtra("mode", "edit")
+                    putExtra("event", evento)
+                }
+                context.startActivity(intent)
             },
             onDeleteEventClick = { evento ->
                 scope.launch {
                     val ok = viewModel.deleteEvent(evento.id)
                     val msg = if (ok) "Evento apagado." else "Erro ao apagar evento."
                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                }
+            },
+            onParticipatingEventLeaveClick = { evento ->
+                val currentUserId = userId
+                if (currentUserId == null) {
+                    Toast.makeText(context, "Utilizador não autenticado.", Toast.LENGTH_SHORT).show()
+                    return@ProfileBottomSheet
+                }
+                scope.launch {
+                    when (val result = viewModel.leaveEvent(evento.id, currentUserId)) {
+                        is EventoRepository.JoinResult.Success -> {
+                            sessionManager.removeJoinedEvent(evento.id)
+                            joinedEventsVersion++
+                            viewModel.carregarEventos()
+                            Toast.makeText(
+                                context,
+                                "Saíste do evento ${evento.title}.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        is EventoRepository.JoinResult.Error -> {
+                            Toast.makeText(
+                                context,
+                                result.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        is EventoRepository.JoinResult.AlreadyJoined -> {
+                            Toast.makeText(
+                                context,
+                                "Estado inconsistente ao sair do evento.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             },
             onEditProfileClick = {},
@@ -171,21 +214,20 @@ fun LaneApp(viewModel: EventoViewModel) {
         )
     }
 }
-
 @Composable
-fun MapContent(viewModel: EventoViewModel) {
+fun MapContent(
+    viewModel: EventoViewModel,
+    onJoinedEventsChanged: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
-
     var selectedEventUi by remember { mutableStateOf<EventUi?>(null) }
     var isSheetOpen by remember { mutableStateOf(false) }
     val sessionManager = remember(context) { SessionManager(context) }
-
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(38.736946, -9.142685),
@@ -288,15 +330,14 @@ fun MapContent(viewModel: EventoViewModel) {
                                     ).show()
                                     return@launch
                                 }
-
                                 val result =
                                     viewModel.joinEvent(selectedEventUi!!.id, userId)
                                 val newCount =
                                     viewModel.getParticipantsCount(selectedEventUi!!.id)
-
                                 when (result) {
                                     is EventoRepository.JoinResult.Success -> {
                                         sessionManager.addJoinedEvent(selectedEventUi!!.id)
+                                        onJoinedEventsChanged()
                                         selectedEventUi = selectedEventUi?.copy(
                                             currentParticipants = newCount,
                                             isUserJoined = true

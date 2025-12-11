@@ -2,7 +2,10 @@ package pt.iade.lane.data.models
 
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
+import kotlinx.parcelize.Parcelize
+import android.os.Parcelable
 
+@Parcelize
 data class Evento(
     @SerializedName("event_id")
     val id: Int,
@@ -42,4 +45,4 @@ data class Evento(
 
     @SerializedName("event_image")
     val imageBase64: String?
-)
+): Parcelable

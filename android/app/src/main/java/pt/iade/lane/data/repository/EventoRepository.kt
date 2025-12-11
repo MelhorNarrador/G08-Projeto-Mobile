@@ -89,6 +89,20 @@ class EventoRepository {
             JoinResult.Error("Erro de rede: ${e.message}")
         }
     }
+    suspend fun leaveEvent(eventId: Int, userId: Int): JoinResult {
+        return try {
+            val response = apiService.leaveEvent(eventId, userId)
+
+            if (response.isSuccessful) {
+                JoinResult.Success
+            } else {
+                JoinResult.Error("Erro ao sair do evento: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            JoinResult.Error("Erro de rede ao sair: ${e.message}")
+        }
+    }
+
 
     suspend fun getParticipantsCount(eventId: Int): Int {
         return try {
@@ -98,4 +112,21 @@ class EventoRepository {
             0
         }
     }
+    suspend fun updateEvento(eventId: Int, dto: CreateEventDTO): Boolean {
+        return try {
+            val response = apiService.updateEvent(eventId, dto)
+
+            if (!response.isSuccessful) {
+                Log.e(
+                    "EventoRepository",
+                    "Erro updateEvento: code=${response.code()} body=${response.errorBody()?.string()}"
+                )
+            }
+            response.isSuccessful
+        } catch (e: Exception) {
+            Log.e("EventoRepository", "Exceção em updateEvento", e)
+            false
+        }
+    }
 }
+
