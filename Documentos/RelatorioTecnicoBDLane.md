@@ -1,6 +1,7 @@
 # Relatório Técnico da Base de Dados  
 **Projeto:** Lane – Plataforma de Descoberta e Participação em Eventos  
 **Curso:** Engenharia Informática  
+**Turma:** D02
 **Unidade Curricular:** Base De Dados
 **Ano Letivo:** 2024 / 2025
 
@@ -138,8 +139,8 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `account_bio` | `TEXT` | | Biografia opcional do perfil. |
 | `account_photo_url` | `TEXT` | | URL para a imagem de perfil. |
 | `account_verified` | `BOOLEAN` | `DEFAULT false` | Estado de verificação da conta. |
-| `account_dob` | `DATE` | | **Adicionada.** Data de Nascimento. Usada para calcular a idade dinamicamente (evita dados estáticos). |
-| `account_gender` | `VARCHAR(30)` | `CHECK` | **Adicionada.** Género do utilizador. A `CHECK` constraint garante a integridade dos dados do *dropdown menu*. |
+| `account_dob` | `DATE` | |Data de Nascimento. Usada para calcular a idade dinamicamente. |
+| `account_gender` | `VARCHAR(30)` | `CHECK` | `CHECK` constraint garante a integridade dos dados do *dropdown menu*. |
 
 ### 4.2. Tabela: `filters`
 
@@ -148,7 +149,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | Coluna | Tipo | PK/FK/Constraint | Descrição |
 | --- | --- | --- | --- |
 | `filters_id` | `SERIAL` | `PK` | Identificador único da categoria. |
-| `filters_name` | `VARCHAR(50)` | `NOT NULL`, `UNIQUE` | O nome da categoria (ex: "Música", "Cultural", "Político"). |
+| `filters_name` | `VARCHAR(50)` | `NOT NULL`, `UNIQUE` | O nome da categoria (ex: "Desporto", "Música & Concertos", "Estudos & Workshops"). |
 
 ### 4.3. Tabela: `events`
 
@@ -161,13 +162,13 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `event_description` | `TEXT` | | Descrição longa do evento. |
 | `event_visibility` | `VARCHAR(20)` | `NOT NULL`, `CHECK` | Visibilidade ('public', 'private'). |
 | `event_category_id` | `INT` | `FK` (filters) | Liga ao `filters_id`. É o "Tipo de Evento". |
-| `event_creator_id` | `INT` | `FK` (user\_details) | O utilizador que criou o evento. `ON DELETE CASCADE`. |
+| `event_creator_id` | `INT` | `FK` (user\_details) | O utilizador que criou o evento. |
 | `location` | `VARCHAR(255)` | | O endereço textual. |
 | `event_latitude` | `NUMERIC(9,6)` | | Coordenada para o Google Maps. |
 | `event_longitude` | `NUMERIC(9,6)` | | Coordenada para o Google Maps. |
 | `event_date` | `TIMESTAMP` | `NOT NULL` | A data e hora exata do evento. |
 | `event_price` | `NUMERIC(10,2)` | `DEFAULT 0` | O preço do evento. |
-| `max_participants` | `INT` | `NOT NULL` | **Adicionada.** Limite de participantes. Verificado pelo *backend* para evitar *race conditions*. |
+| `max_participants` | `INT` | `NOT NULL` | Limite de participantes. |
 | `created_at` | `TIMESTAMP` | `DEFAULT NOW()` | Data de criação do registo. |
 | `event_image` | `TEXT` | `–` | Imagem associada ao evento (Base64) |
 
@@ -181,7 +182,7 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `follow_id` | `SERIAL` | `PK` | ID da relação. |
 | `follower_id` | `INT` | `NOT NULL`, `FK` (user) | O utilizador que *segue*. |
 | `following_id` | `INT` | `NOT NULL`, `FK` (user) | O utilizador que *é seguido*. |
-| `(follower_id, following_id)` | | `UNIQUE` | Garante que A só pode seguir B uma vez. |
+| `(follower_id, following_id)` | | `UNIQUE`, `CHECK` | Garante que A só pode seguir B uma vez. Garante que o user não se pode seguir a si mesmo|
 
 ### 4.5. Tabela: `event_participants`
 
@@ -207,5 +208,23 @@ Abaixo está a descrição detalhada de cada tabela na sua forma final.
 | `status` | `VARCHAR(20)` | `CHECK` | Estado: 'pending', 'accepted', 'rejected'. |
 | `(event_id, sender_id, receiver_id)` | | `UNIQUE` | Impede o envio de convites duplicados. |
 
+## 4.7. Otimização e Performance (Índices)
+
+A performance é crítica para uma aplicação móvel. Uma query lenta no *backend* resulta numa UI "congelada". Para mitigar isto, foram criados **índices*.
+
+  * **Justificação:** Operações como carregar um evento e o seu criador, ou encontrar todos os seguidores de um utilizador, exigem `JOIN`s ou `WHERE`s nessas colunas.
+  * **Impacto:** Um `INDEX` transforma uma operação de "Table Scan" (ler a tabela inteira, muito lento) numa operação "Index Scan" (ir direto ao dado, muito rápido), garantindo que a app se mantém rápida.
+
+**Índices Criados:**
+* `idx_events_creator_id ON public.events(event_creator_id)`
+* `idx_events_category_id ON public.events(event_category_id)`
+* `idx_events_location ON public.events(event_latitude, event_longitude)`
+* `idx_followers_follower_id ON public.followers(follower_id)`
+* `idx_followers_following_id ON public.followers(following_id)`
+* `idx_invitations_event_id ON public.invitations(event_id)`
+* `idx_invitations_sender_id ON public.invitations(sender_id)`
+* `idx_invitations_receiver_id ON public.invitations(receiver_id)`
+* `idx_event_participants_event_id ON public.event_participants(event_id)`
+* `idx_event_participants_user_id ON public.event_participants(user_id)`
 
 
