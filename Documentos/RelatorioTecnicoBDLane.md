@@ -40,12 +40,12 @@ A base de dados é organizada em torno de 6 entidades principais:
   - Participar em **muitos eventos** → relação N-N via `event_participants`;
   - Enviar/receber **muitos convites** → relações 1-N entre `user_details` e `invitations`.
 
-- **Um evento** (`events`) pertence a **uma categoria** (`filters`), através da FK `event_category_id`.
-
 - **Um evento** pode:
   - Ter **muitos participantes** (`event_participants`);
   - Ter **muitos convites** (`invitations`).
 
+  - **Um evento** (`events`) pertence a **uma categoria** (`filters`), através da FK `event_category_id`.
+  
 ---
 
 ## 4. Modelo Físico (Dicionário de Dados)
