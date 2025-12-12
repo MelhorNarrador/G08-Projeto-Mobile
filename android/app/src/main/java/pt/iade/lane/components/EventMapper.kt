@@ -19,6 +19,7 @@ fun Evento.toUi(
         dateTime = formattedDateTime,
         currentParticipants = currentParticipants,
         maxParticipants = maxParticipants,
-        isUserJoined = isUserJoined
+        isUserJoined = isUserJoined,
+        price = price.toDouble()
     )
 }

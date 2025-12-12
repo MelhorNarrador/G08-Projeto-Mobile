@@ -34,6 +34,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.utils.EventUi
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 @Composable
 fun ProfileScreenContent(
     name: String,
@@ -54,124 +58,134 @@ fun ProfileScreenContent(
     var selectedParticipatingEvent by remember { mutableStateOf<EventUi?>(null) }
     var isDetailsSheetOpen by remember { mutableStateOf(false) }
 
-    Column(
+    val listState = rememberLazyListState()
+
+    LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .navigationBarsPadding() // evita ficar cortado pelos gestos/bottom bar
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "Perfil",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ProfileHeader(
-            name = name,
-            username = username,
-            imageBase64 = profileImageBase64
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        if (bio.isNotBlank()) {
+        item {
             Text(
-                text = bio,
-                style = MaterialTheme.typography.bodyMedium
+                text = "Perfil",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(12.dp))
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-        Text(
-            text = "Estatísticas",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        item {
+            ProfileHeader(
+                name = name,
+                username = username,
+                imageBase64 = profileImageBase64
+            )
+        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        if (bio.isNotBlank()) {
+            item {
+                Text(text = bio, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
 
-        StatItem(
-            label = "Eventos ativos",
-            count = activeEvents.size,
-            expanded = showActive,
-            onClick = { showActive = !showActive }
-        )
+        item {
+            Text(
+                text = "Estatísticas",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
-        if (showActive && activeEvents.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                activeEvents.forEach { evento ->
+        item {
+            StatItem(
+                label = "Eventos ativos",
+                count = activeEvents.size,
+                expanded = showActive,
+                onClick = { showActive = !showActive }
+            )
+        }
+
+        if (showActive) {
+            if (activeEvents.isEmpty()) {
+                item {
+                    Text(
+                        text = "Sem eventos ativos.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                items(activeEvents, key = { it.id }) { evento ->
                     ActiveEventRow(
                         evento = evento,
                         onEditEvent = onEditEvent,
                         onDeleteEvent = onDeleteEvent
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            StatItem(
+                label = "Eventos a participar",
+                count = participatingEvents.size,
+                expanded = showParticipating,
+                onClick = { showParticipating = !showParticipating }
+            )
+        }
 
-        StatItem(
-            label = "Eventos a participar",
-            count = participatingEvents.size,
-            expanded = showParticipating,
-            onClick = { showParticipating = !showParticipating }
-        )
-
-        if (showParticipating && participatingEvents.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                participatingEvents.forEach { evento ->
+        if (showParticipating) {
+            if (participatingEvents.isEmpty()) {
+                item {
+                    Text(
+                        text = "Sem eventos a participar.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                items(participatingEvents, key = { it.id }) { evento ->
                     ParticipatingEventRow(
                         evento = evento,
                         onInfoClick = {
-                            selectedParticipatingEvent = evento.toUi(
-                                isUserJoined = true
-                            )
+                            selectedParticipatingEvent = evento.toUi(isUserJoined = true)
                             isDetailsSheetOpen = true
                         },
-                        onLeaveClick = {
-                            onParticipatingEventLeave(evento)
-                        }
+                        onLeaveClick = { onParticipatingEventLeave(evento) }
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
                 }
             }
         }
 
-        Text(
-            text = "Definições",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = onLogout,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Terminar sessão")
+        item {
+            Text(
+                text = "Definições",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Button(
+                onClick = onLogout,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Red,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Terminar sessão")
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(16.dp)) }
     }
+
     if (isDetailsSheetOpen && selectedParticipatingEvent != null) {
         EventDetailsBottomSheet(
             event = selectedParticipatingEvent,

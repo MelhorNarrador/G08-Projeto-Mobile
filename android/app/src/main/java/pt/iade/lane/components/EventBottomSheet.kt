@@ -71,6 +71,7 @@ fun EventDetailsBottomSheet(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+
     ModalBottomSheet(
         onDismissRequest = {
             scope.launch {
@@ -132,6 +133,14 @@ fun EventDetailsBottomSheet(
 
                 Text(
                     text = formattedDateTime,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                val priceText = if (event.price <= 0.0) "Gratuito" else "Preço: %.2f €".format(event.price)
+
+                Text(
+                    text = priceText,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

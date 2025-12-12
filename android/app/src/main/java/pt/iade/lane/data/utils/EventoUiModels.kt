@@ -11,5 +11,6 @@ data class EventUi(
     val dateTime: String,
     val currentParticipants: Int,
     val maxParticipants: Int,
-    val isUserJoined: Boolean = false
+    val isUserJoined: Boolean = false,
+    val price: Double
 )
