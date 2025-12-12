@@ -48,14 +48,11 @@ import pt.iade.lane.components.toUi
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.EventUi
 import pt.iade.lane.data.utils.LocationUtils
-import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.viewmodels.EventoViewModel
 
 @Composable
 fun MapScreen(
-    viewModel: EventoViewModel,
-    sessionManager: SessionManager,
-    onJoinedEventsChanged: () -> Unit
+    viewModel: EventoViewModel
 ) {
     val isPreview = LocalInspectionMode.current
     if (isPreview) {
@@ -73,6 +70,8 @@ fun MapScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val session by viewModel.session.collectAsState()
 
     val eventos by viewModel.eventos.collectAsState()
     val filtros by viewModel.filtros.collectAsState()
@@ -92,7 +91,8 @@ fun MapScreen(
     val hasPermission = LocationUtils.hasLocationPermission(context)
 
     val eventosFiltrados = remember(eventos, selectedCategoryId) {
-        if (selectedCategoryId == null) eventos else eventos.filter { it.categoryId == selectedCategoryId }
+        if (selectedCategoryId == null) eventos
+        else eventos.filter { it.categoryId == selectedCategoryId }
     }
 
     LaunchedEffect(hasPermission) {
@@ -107,6 +107,7 @@ fun MapScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.carregarEventos()
                 viewModel.carregarFiltros()
+                viewModel.loadSession()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -133,6 +134,7 @@ fun MapScreen(
                         if (lat != null && lng != null && (lat != 0.0 || lng != 0.0)) {
                             val posicao = LatLng(lat, lng)
                             val markerHue = EventCategoryColors.hueForCategory(evento.categoryId)
+
                             Marker(
                                 state = MarkerState(position = posicao),
                                 title = evento.title,
@@ -141,9 +143,11 @@ fun MapScreen(
                                 onClick = {
                                     scope.launch {
                                         val count = viewModel.getParticipantsCount(evento.id)
+                                        val joined = session.joinedEventIds.contains(evento.id)
+
                                         selectedEventUi = evento.toUi(
                                             currentParticipants = count,
-                                            isUserJoined = false
+                                            isUserJoined = joined
                                         )
                                         isSheetOpen = true
                                     }
@@ -205,38 +209,55 @@ fun MapScreen(
                         },
                         onParticipateClick = {
                             scope.launch {
-                                val userId = sessionManager.fetchUserId()
+                                val userId = session.userId
                                 if (userId == null) {
-                                    Toast.makeText(context, "Utilizador não autenticado", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Utilizador não autenticado",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     return@launch
                                 }
 
-                                val result = viewModel.joinEvent(selectedEventUi!!.id, userId)
-                                val newCount = viewModel.getParticipantsCount(selectedEventUi!!.id)
+                                val eventId = selectedEventUi!!.id
+                                val result = viewModel.joinEvent(eventId, userId)
+                                val newCount = viewModel.getParticipantsCount(eventId)
 
                                 when (result) {
                                     is EventoRepository.JoinResult.Success -> {
-                                        sessionManager.addJoinedEvent(selectedEventUi!!.id)
-                                        onJoinedEventsChanged()
+                                        viewModel.markJoined(eventId)
                                         selectedEventUi = selectedEventUi?.copy(
                                             currentParticipants = newCount,
                                             isUserJoined = true
                                         )
-                                        Toast.makeText(context, "Inscrição registada com sucesso.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Inscrição registada com sucesso.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
 
                                     is EventoRepository.JoinResult.AlreadyJoined -> {
-                                        sessionManager.addJoinedEvent(selectedEventUi!!.id)
+                                        viewModel.markJoined(eventId)
                                         selectedEventUi = selectedEventUi?.copy(
                                             currentParticipants = newCount,
                                             isUserJoined = true
                                         )
-                                        Toast.makeText(context, "Já estás inscrito neste evento.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Já estás inscrito neste evento.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
 
                                     is EventoRepository.JoinResult.Error -> {
-                                        selectedEventUi = selectedEventUi?.copy(currentParticipants = newCount)
-                                        Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                        selectedEventUi =
+                                            selectedEventUi?.copy(currentParticipants = newCount)
+                                        Toast.makeText(
+                                            context,
+                                            result.message,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                             }
