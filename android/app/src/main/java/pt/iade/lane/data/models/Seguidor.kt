@@ -8,10 +8,10 @@ data class Seguidor(
     val id: Int,
 
     @SerializedName("follower_id")
-    val seguidorId: Int, // Quem está a seguir
+    val seguidorId: Int,
 
     @SerializedName("following_id")
-    val aSerSeguidoId: Int, // Quem está a ser seguido
+    val aSerSeguidoId: Int,
 
     @SerializedName("followed_at")
     val seguidoEm: Date

@@ -3,6 +3,7 @@ package pt.iade.lane.ui
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -56,6 +58,7 @@ import pt.iade.lane.components.toFormState
 import pt.iade.lane.components.uriToBase64
 import pt.iade.lane.components.validateCreateEventForm
 import pt.iade.lane.data.models.CreateEventDTO
+import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.SessionManager
@@ -63,7 +66,6 @@ import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.CreateEventViewModel
 import java.math.BigDecimal
 import java.util.Calendar
-import pt.iade.lane.data.models.Evento
 
 @Suppress("DEPRECATION")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,7 +165,6 @@ class CreateEventActivity : ComponentActivity() {
                             if (mode == "edit" && eventToEdit != null) {
                                 viewModel.updateEvent(eventToEdit.id, eventDTO)
                             } else {
-
                                 viewModel.createEvent(eventDTO)
                             }
                         }
@@ -357,4 +358,22 @@ fun CreateEventScreen(
         }
     }
 }
-
+@Preview(showBackground = true, showSystemUi = true, name = "CreateEvent - Dark", uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun CreateEventPreviewDark() {
+    LaneTheme {
+        CreateEventScreen(
+            isLoading = false,
+            filterOptions = listOf(
+                Filtro(id = 1, nome = "Festa"),
+                Filtro(id = 2, nome = "Desporto"),
+                Filtro(id = 3, nome = "Tech")
+            ),
+            creatorId = 1,
+            mode = "create",
+            existingEvent = null,
+            onSubmitClick = {}
+        )
+    }
+}

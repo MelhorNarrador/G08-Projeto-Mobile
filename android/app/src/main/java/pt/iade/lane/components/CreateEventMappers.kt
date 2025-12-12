@@ -21,18 +21,14 @@ data class EventFormState(
 )
 
 fun Evento.toFormState(): EventFormState {
-    // Exemplo típico: "2025-01-10T21:00:00"
     val (dataPart, timePartRaw) = if (date.contains("T")) {
         val parts = date.split("T")
         val data = parts.getOrNull(0) ?: ""
         val hora = parts.getOrNull(1) ?: ""
         data to hora
     } else {
-        // fallback se o backend algum dia mandar sem 'T'
         date to ""
     }
-
-    // timePartRaw: "21:00:00" -> queremos só "21:00"
     val horaPart = if (timePartRaw.length >= 5) {
         timePartRaw.substring(0, 5)
     } else {

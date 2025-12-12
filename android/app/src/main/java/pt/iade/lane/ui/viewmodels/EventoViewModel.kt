@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.repository.EventoRepository
+import pt.iade.lane.data.models.Filtro
 
 open class EventoViewModel : ViewModel(){
     private val repository = EventoRepository()
@@ -18,7 +19,19 @@ open class EventoViewModel : ViewModel(){
     val isLoading: StateFlow<Boolean> = _isLoading
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+    private val _filtros = MutableStateFlow<List<Filtro>>(emptyList())
+    val filtros: StateFlow<List<Filtro>> = _filtros
 
+    fun carregarFiltros() {
+        viewModelScope.launch {
+            try {
+                val lista = repository.getFiltros()  // ajusta o nome se for diferente
+                _filtros.value = lista
+            } catch (e: Exception) {
+                Log.e("EventoViewModel", "Erro ao carregar filtros: ${e.message}", e)
+            }
+        }
+    }
     open fun carregarEventos() {
         Log.d("EventoViewModel", "A carregar eventos...")
 

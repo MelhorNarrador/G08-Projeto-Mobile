@@ -11,11 +11,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,10 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -46,6 +52,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import pt.iade.lane.components.BottomBar
+import pt.iade.lane.components.EventCategoryColors
 import pt.iade.lane.components.EventDetailsBottomSheet
 import pt.iade.lane.components.ProfileBottomSheet
 import pt.iade.lane.components.toUi
@@ -55,8 +62,10 @@ import pt.iade.lane.data.utils.LocationUtils
 import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.EventoViewModel
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import pt.iade.lane.components.EventCategoryColors
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.LocalInspectionMode
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +107,7 @@ fun LaneApp(viewModel: EventoViewModel) {
             emptyList()
 
     Scaffold(
-        floatingActionButtonPosition = FabPosition.Start,
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -221,6 +230,18 @@ fun MapContent(
     viewModel: EventoViewModel,
     onJoinedEventsChanged: () -> Unit
 ) {
+    val isPreview = LocalInspectionMode.current
+    if (isPreview) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Map preview (GoogleMap não renderiza em @Preview)")
+        }
+        return
+    }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val eventos by viewModel.eventos.collectAsState()
@@ -230,6 +251,9 @@ fun MapContent(
     var selectedEventUi by remember { mutableStateOf<EventUi?>(null) }
     var isSheetOpen by remember { mutableStateOf(false) }
     val sessionManager = remember(context) { SessionManager(context) }
+    var showFilterMenu by remember { mutableStateOf(false) }
+    var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
+    val filtros by viewModel.filtros.collectAsState()
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(38.736946, -9.142685),
@@ -237,6 +261,10 @@ fun MapContent(
         )
     }
     val hasPermission = LocationUtils.hasLocationPermission(context)
+    val eventosFiltrados = remember(eventos, selectedCategoryId) {
+        if (selectedCategoryId == null) eventos
+        else eventos.filter { it.categoryId == selectedCategoryId }
+    }
     LaunchedEffect(hasPermission) {
         if (hasPermission) {
             val loc = LocationUtils.getLastKnownLocation(context)
@@ -250,6 +278,7 @@ fun MapContent(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.carregarEventos()
+                viewModel.carregarFiltros()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -274,17 +303,19 @@ fun MapContent(
                         isMyLocationEnabled = hasPermission
                     ),
                     uiSettings = MapUiSettings(
-                        myLocationButtonEnabled = true
+                        myLocationButtonEnabled = true,
+                        zoomControlsEnabled = false
                     )
                 ) {
-                    eventos.forEach { evento ->
+                    eventosFiltrados.forEach { evento ->
                         if (evento.latitude != null && evento.longitude != null) {
                             val lat = evento.latitude.toDouble()
                             val lng = evento.longitude.toDouble()
 
                             if (lat != 0.0 || lng != 0.0) {
                                 val posicao = LatLng(lat, lng)
-                                val markerHue = EventCategoryColors.hueForCategory(evento.categoryId)
+                                val markerHue =
+                                    EventCategoryColors.hueForCategory(evento.categoryId)
                                 Marker(
                                     state = MarkerState(position = posicao),
                                     title = evento.title,
@@ -315,7 +346,45 @@ fun MapContent(
                         Text(text = "Não foram encontrados eventos.")
                     }
                 }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp)
+                        .padding(bottom = 8.dp)
+                ) {
+                    SmallFloatingActionButton(
+                        onClick = { showFilterMenu = !showFilterMenu }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.FilterList,
+                            contentDescription = "Filtrar eventos"
+                        )
+                    }
 
+                    DropdownMenu(
+                        expanded = showFilterMenu,
+                        onDismissRequest = { showFilterMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Todos") },
+                            onClick = {
+                                selectedCategoryId = null
+                                showFilterMenu = false
+                            }
+                        )
+                        filtros.forEach { filtro ->
+                            DropdownMenuItem(
+                                text = { Text(filtro.nome ?: "Sem nome") },
+                                onClick = {
+                                    selectedCategoryId = filtro.id
+                                    showFilterMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                    }
                 if (isSheetOpen && selectedEventUi != null) {
                     EventDetailsBottomSheet(
                         event = selectedEventUi,
@@ -384,13 +453,14 @@ fun MapContent(
             }
         }
     }
-}
 
-@Preview(showBackground = true, showSystemUi = true, name = "LaneApp - Preview")
+
+@Preview(showBackground = true, showSystemUi = true, name = "MainActivity - Dark",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
-fun LaneAppPreview() {
+fun MainActivityPreviewDark() {
     LaneTheme {
-        val previewViewModel = remember { EventoViewModel() }
-        LaneApp(viewModel = previewViewModel)
+        LaneApp(viewModel = remember { EventoViewModel() })
     }
 }

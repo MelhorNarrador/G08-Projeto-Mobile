@@ -17,7 +17,7 @@ data class Convite(
     val receiverId: Int,
 
     @SerializedName("status")
-    val status: String, // "pending", "accepted", "rejected"
+    val status: String,
 
     @SerializedName("sent_at")
     val enviadoEm: Date
