@@ -20,7 +20,6 @@ As ferramentas utilizadas para o desenvolvimento e gestão desta base de dados f
 
 - **Integridade** dos dados
 - **Escalabilidade e performance** (através de índices nas colunas mais utilizadas);
-- **Coerência com o backend** da API
 
 O ficheiro `Create.sql` contém o script de criação completo da base de dados (tabelas, constraints e índices), servindo de referência principal para este relatório.
 
@@ -58,7 +57,7 @@ A base de dados é organizada em torno de 6 entidades principais:
 
 ### 2.3. `user_details` — `followers`  (Segue / É seguido)
 
-Relação auto-referenciada entre utilizadores, implementada pela tabela `followers`.
+Relação entre utilizadores, implementada pela tabela `followers`.
 
 - **Chaves estrangeiras:**
   - `followers.follower_id` → `user_details.account_id`
@@ -68,11 +67,11 @@ Relação auto-referenciada entre utilizadores, implementada pela tabela `follow
   - Um **utilizador** pode ser **seguido por 0..N utilizadores**.
 - **Interpretação:**  
   Cada registo em `followers` representa uma relação “A segue B”.  
-  A combinação `(follower_id, following_id)` deve ser única para evitar follows duplicados, e há um `CHECK` para impedir que alguém se siga a si próprio.
+  A combinação `(follower_id, following_id)` é única para evitar follows duplicados, e há um `CHECK` para impedir que alguém se siga a si próprio.
 
 ### 2.4. `user_details` — `event_participants` — `events`  (Participa / Tem participantes)
 
-Relação N-N entre utilizadores e eventos, materializada pela tabela `event_participants`.
+Relação N-N entre utilizadores e eventos, implementada pela tabela `event_participants`.
 
 - **Chaves estrangeiras:**
   - `event_participants.user_id` → `user_details.account_id`
@@ -84,7 +83,7 @@ Relação N-N entre utilizadores e eventos, materializada pela tabela `event_par
   - Um registo em `event_participants` referencia **1 utilizador** e **1 evento**.
 - **Interpretação:**  
   Sempre que um utilizador se inscreve num evento, é criado um registo em `event_participants`.  
-  A combinação `(event_id, user_id)` deve é única, garantindo que um utilizador não entra mais do que uma vez no mesmo evento.
+  A combinação `(event_id, user_id)` é única, garantindo que um utilizador não entra mais do que uma vez no mesmo evento.
 
 ### 2.5. `events` — `invitations` — `user_details`  (Tem convites / Envia / Recebe)
 
