@@ -33,3 +33,20 @@ Dentro da aplicação consegue:
 - Conta Lane.
 
 ---
+
+## Criar conta
+
+1. Na página de login, clique em **“Não tens uma conta? Regista-te”**.
+2. Preenche os campos:
+   - **Nome completo**
+   - **Nome de utilizador**
+   - **Email**
+   - **Palavra-passe**
+   - **Data de nascimento**
+   - **Género**
+3. Clique em **“Criar Conta”** para concluir.
+
+**Ecrã de referência:**  
+![Criar Conta](LaneAppLogOn.jpg)
+
+---
