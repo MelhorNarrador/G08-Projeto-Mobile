@@ -13,8 +13,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Lane">
-
+        android:theme="@style/Theme.Lane"
+        android:name=".LaneApplication">
         <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyDjXqd_91_e6ju7C8DY3R8VggPWkid62MM" />

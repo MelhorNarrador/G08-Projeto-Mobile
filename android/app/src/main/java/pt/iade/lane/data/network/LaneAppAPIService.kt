@@ -87,4 +87,6 @@ interface LaneAppAPIService {
         @Body dto: CreateEventDTO
     ): Response<Evento>
 
+    @GET("api/events/{id}")
+    suspend fun getEventoById(@Path("id") id: Int): Response<Evento>
 }

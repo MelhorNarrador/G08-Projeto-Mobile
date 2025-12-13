@@ -41,4 +41,10 @@ public class IEventService implements EventService {
         updatedEvent.setEvent_id(id);
         return eventRepository.save(updatedEvent);
     }
+    @Override
+    public Event getEventById(Integer id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+    }
+
 }

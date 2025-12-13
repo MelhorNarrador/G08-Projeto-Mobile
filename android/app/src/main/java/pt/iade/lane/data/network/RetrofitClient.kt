@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.math.BigDecimal
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.208.195.34:8080/" //ipconfig no CMD
+    private const val BASE_URL = "http://192.168.1.92:8080/" //ipconfig no CMD
 
     var authToken: String? = null
 

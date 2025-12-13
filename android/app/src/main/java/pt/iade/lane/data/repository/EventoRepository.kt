@@ -128,5 +128,19 @@ class EventoRepository {
             false
         }
     }
+    suspend fun getEventoById(id: Int): Evento? {
+        return try {
+            val response = apiService.getEventoById(id)
+            if (response.isSuccessful) {
+                response.body()
+            } else {
+                Log.e("EventoRepository", "Erro ao buscar evento por ID: ${response.code()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("EventoRepository", "Exceção ao buscar evento por ID: ${e.message}")
+            null
+        }
+    }
 }
 
