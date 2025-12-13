@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.models.CreateEventDTO
+import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.SessionManager
@@ -23,6 +24,8 @@ class CreateEventViewModel(
     val errorMessage = _errorMessage.asStateFlow()
     private val _isSuccess = MutableStateFlow(false)
     val isSuccess = _isSuccess.asStateFlow()
+    private val _eventToEdit = MutableStateFlow<Evento?>(null)
+    val eventToEdit = _eventToEdit.asStateFlow()
 
     fun loadFilters() {
         viewModelScope.launch {
@@ -62,6 +65,22 @@ class CreateEventViewModel(
 
     fun getCreatorId(): Int? {
         return sessionManager.fetchUserId()
+    }
+    fun loadEventById(eventId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val evento = repository.getEventoById(eventId)
+                _eventToEdit.value = evento
+                if (evento == null) {
+                    _errorMessage.value = "Não foi possível carregar os dados do evento."
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Erro ao carregar evento: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
     fun updateEvent(eventId: Int, dto: CreateEventDTO) {
         viewModelScope.launch {

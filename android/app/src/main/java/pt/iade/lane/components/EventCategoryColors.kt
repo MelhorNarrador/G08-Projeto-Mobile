@@ -15,7 +15,7 @@ object EventCategoryColors {
             7 -> BitmapDescriptorFactory.HUE_MAGENTA  // Arte & Cultura
             8 -> BitmapDescriptorFactory.HUE_YELLOW   // Voluntariado & Comunidade
             9 -> BitmapDescriptorFactory.HUE_BLUE     // Tecnologia & Startups
-            10 -> BitmapDescriptorFactory.HUE_GREEN   // Saúde & Bem-estar
+            10 -> BitmapDescriptorFactory.HUE_RED   // Saúde & Bem-estar
             else -> BitmapDescriptorFactory.HUE_RED   // Categoria default
         }
     }

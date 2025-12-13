@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
@@ -78,20 +77,7 @@ class CreateEventActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val mode = intent.getStringExtra("mode") ?: "create"
-        val eventToEdit = intent.getParcelableExtra<Evento>("event")
-
-        try {
-            val appInfo = packageManager.getApplicationInfo(
-                packageName,
-                android.content.pm.PackageManager.GET_META_DATA
-            )
-            val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
-            if (!Places.isInitialized() && apiKey != null) {
-                Places.initialize(applicationContext, apiKey)
-            }
-        } catch (e: Exception) {
-            Log.e("PlacesInit", "Erro ao inicializar Places: ${e.message}")
-        }
+        val eventIdToEdit = intent.getIntExtra("eventId", -1)
 
         sessionManager = SessionManager(applicationContext)
 
@@ -109,11 +95,17 @@ class CreateEventActivity : ComponentActivity() {
                 val isLoading by viewModel.isLoading.collectAsState()
                 val isSuccess by viewModel.isSuccess.collectAsState()
                 val errorMessage by viewModel.errorMessage.collectAsState()
-
+                val loadedEvent by viewModel.eventToEdit.collectAsState()
                 val context = LocalContext.current
 
                 LaunchedEffect(Unit) {
                     viewModel.loadFilters()
+                }
+                LaunchedEffect(mode, eventIdToEdit) {
+                    if (mode == "edit" && eventIdToEdit != -1) {
+                        Log.d("CreateEventActivity", "A carregar evento com ID: $eventIdToEdit")
+                        viewModel.loadEventById(eventIdToEdit)
+                    }
                 }
                 LaunchedEffect(isSuccess) {
                     if (isSuccess) {
@@ -160,10 +152,10 @@ class CreateEventActivity : ComponentActivity() {
                         filterOptions = filters,
                         creatorId = viewModel.getCreatorId(),
                         mode = mode,
-                        existingEvent = eventToEdit,
+                        existingEvent = loadedEvent,
                         onSubmitClick = { eventDTO ->
-                            if (mode == "edit" && eventToEdit != null) {
-                                viewModel.updateEvent(eventToEdit.id, eventDTO)
+                            if (mode == "edit" && eventIdToEdit != -1) {
+                                viewModel.updateEvent(eventIdToEdit, eventDTO)
                             } else {
                                 viewModel.createEvent(eventDTO)
                             }
@@ -238,11 +230,16 @@ fun CreateEventScreen(
         }
     }
     LaunchedEffect(existingEvent, filterOptions) {
-        if (mode == "edit" && existingEvent != null && filterOptions.isNotEmpty()) {
-            val matching = filterOptions.find { it.id == existingEvent.categoryId }
-            if (matching != null) {
-                formState = formState.copy(selectedFiltro = matching)
+        if (existingEvent != null) {
+            var newState = existingEvent.toFormState()
+
+            if (filterOptions.isNotEmpty()) {
+                val matching = filterOptions.find { it.id == existingEvent.categoryId }
+                if (matching != null) {
+                    newState = newState.copy(selectedFiltro = matching)
+                }
             }
+            formState = newState
         }
     }
 

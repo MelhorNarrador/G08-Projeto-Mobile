@@ -80,5 +80,12 @@ public class EventController {
                     .body("Erro ao remover participação.");
         }
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(eventService.getEventById(id));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

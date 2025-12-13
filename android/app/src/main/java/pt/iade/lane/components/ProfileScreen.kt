@@ -64,7 +64,7 @@ fun ProfileScreenContent(
         state = listState,
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding() // evita ficar cortado pelos gestos/bottom bar
+            .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -118,7 +118,7 @@ fun ProfileScreenContent(
                     )
                 }
             } else {
-                items(activeEvents, key = { it.id }) { evento ->
+                items(activeEvents, key = { "active_${it.id}"}) { evento ->
                     ActiveEventRow(
                         evento = evento,
                         onEditEvent = onEditEvent,
@@ -146,7 +146,7 @@ fun ProfileScreenContent(
                     )
                 }
             } else {
-                items(participatingEvents, key = { it.id }) { evento ->
+                items(participatingEvents, key = { "part_${it.id}" }) { evento ->
                     ParticipatingEventRow(
                         evento = evento,
                         onInfoClick = {
@@ -158,15 +158,6 @@ fun ProfileScreenContent(
                 }
             }
         }
-
-        item {
-            Text(
-                text = "Definições",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
         item {
             Button(
                 onClick = onLogout,

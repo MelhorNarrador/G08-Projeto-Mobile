@@ -3,23 +3,23 @@ package pt.iade.lane.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import pt.iade.lane.data.models.Evento
 import pt.iade.lane.data.models.Filtro
 import pt.iade.lane.data.repository.EventoRepository
 import pt.iade.lane.data.utils.SessionManager
-import pt.iade.lane.ui.state.UserSessionUiState
 
-open class EventoViewModel : ViewModel() {
-
+class EventoViewModel(
+    private val sessionManager: SessionManager
+) : ViewModel() {
     private val repository = EventoRepository()
 
     private val _eventos = MutableStateFlow<List<Evento>>(emptyList())
-    open val eventos: StateFlow<List<Evento>> = _eventos
+    val eventos: StateFlow<List<Evento>> = _eventos
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -29,69 +29,28 @@ open class EventoViewModel : ViewModel() {
 
     private val _filtros = MutableStateFlow<List<Filtro>>(emptyList())
     val filtros: StateFlow<List<Filtro>> = _filtros
-    private lateinit var sessionManager: SessionManager
-    private val _session = MutableStateFlow(UserSessionUiState())
-    val session = _session.asStateFlow()
-    fun attachSessionManager(sm: SessionManager) {
-        sessionManager = sm
-        loadSession()
-    }
 
-    fun loadSession() {
-        if (!::sessionManager.isInitialized) return
+    private val _toastMessage = MutableSharedFlow<String>()
+    val toastMessage = _toastMessage.asSharedFlow()
 
-        val usernameRaw = sessionManager.fetchUserUsername().orEmpty()
-        val userId = sessionManager.fetchUserId()
+    private val _refreshTrigger = MutableSharedFlow<Unit>()
+    val refreshTrigger = _refreshTrigger.asSharedFlow()
 
-        _session.value = UserSessionUiState(
-            userId = userId,
-            name = sessionManager.fetchUserName().orEmpty(),
-            username = if (usernameRaw.isNotEmpty()) "@$usernameRaw" else "",
-            bio = sessionManager.fetchUserBio().orEmpty(),
-            profileImageBase64 = sessionManager.fetchUserProfileImage(),
-            joinedEventIds = sessionManager.fetchJoinedEvents().toSet(),
-            isLoggedIn = userId != null
-        )
-    }
-
-    fun markJoined(eventId: Int) {
-        if (!::sessionManager.isInitialized) return
-        sessionManager.addJoinedEvent(eventId)
-        _session.update { it.copy(joinedEventIds = it.joinedEventIds + eventId) }
-    }
-
-    fun markLeft(eventId: Int) {
-        if (!::sessionManager.isInitialized) return
-        sessionManager.removeJoinedEvent(eventId)
-        _session.update { it.copy(joinedEventIds = it.joinedEventIds - eventId) }
-    }
-
-    fun logout() {
-        if (!::sessionManager.isInitialized) {
-            _session.value = UserSessionUiState()
-            return
-        }
-        sessionManager.clearAuth()
-        _session.value = UserSessionUiState()
-    }
     fun carregarFiltros() {
         viewModelScope.launch {
             try {
-                val lista = repository.getFiltros()
-                _filtros.value = lista
+                _filtros.value = repository.getFiltros()
             } catch (e: Exception) {
                 Log.e("EventoViewModel", "Erro ao carregar filtros: ${e.message}", e)
             }
         }
     }
 
-    open fun carregarEventos() {
+    fun carregarEventos() {
         Log.d("EventoViewModel", "A carregar eventos...")
-
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
-
             try {
                 val lista = repository.getTodosEventos()
                 _eventos.value = lista
@@ -105,23 +64,49 @@ open class EventoViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteEvent(eventoId: Int) {
+        viewModelScope.launch {
+            val success = repository.deleteEvento(eventoId)
+            if (success) {
+                carregarEventos()
+                _toastMessage.emit("Evento apagado com sucesso.")
+            } else {
+                _toastMessage.emit("Erro ao apagar evento.")
+            }
+        }
+    }
+
+    fun leaveEvent(eventoId: Int) {
+        val userId = sessionManager.fetchUserId()
+        if (userId == null) {
+            viewModelScope.launch { _toastMessage.emit("Utilizador não autenticado.") }
+            return
+        }
+
+        viewModelScope.launch {
+            when (val result = repository.leaveEvent(eventoId, userId)) {
+                is EventoRepository.JoinResult.Success -> {
+                    sessionManager.removeJoinedEvent(eventoId)
+                    _refreshTrigger.emit(Unit)
+                    carregarEventos()
+                    _toastMessage.emit("Saíste do evento.")
+                }
+                is EventoRepository.JoinResult.Error -> {
+                    _toastMessage.emit(result.message)
+                }
+                is EventoRepository.JoinResult.AlreadyJoined -> {
+                    _toastMessage.emit("Estado inconsistente.")
+                }
+            }
+        }
+    }
+
     suspend fun getParticipantsCount(eventId: Int): Int {
         return repository.getParticipantsCount(eventId)
     }
 
     suspend fun joinEvent(eventId: Int, userId: Int): EventoRepository.JoinResult {
         return repository.joinEvent(eventId, userId)
-    }
-
-    suspend fun leaveEvent(eventId: Int, userId: Int): EventoRepository.JoinResult {
-        return repository.leaveEvent(eventId, userId)
-    }
-
-    suspend fun deleteEvent(eventId: Int): Boolean {
-        val ok = repository.deleteEvento(eventId)
-        if (ok) {
-            carregarEventos()
-        }
-        return ok
     }
 }
