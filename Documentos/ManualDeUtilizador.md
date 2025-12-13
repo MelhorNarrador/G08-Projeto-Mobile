@@ -76,3 +76,49 @@ A navegação principal é feita pela barra inferior:
 
 **Ecrã de referência:**  
 ![Mapa principal](imgs/LaneAppMainScreen.jpg)
+
+---
+
+## Explorar eventos no mapa
+
+No **ecrã principal**, vê o mapa com vários marcadores coloridos:
+
+- Cada marcador representa um evento.
+- Cada cor representa uma categoria (Dicionario de categorias do ponto seguinte)
+- Pode fazer zoom e mover o mapa para explorar zonas diferentes.
+
+Dicas rápidas:
+- **Zoom in** para separar marcadores próximos e ver melhor as localizações.
+- **Mova o mapa** para procurar eventos noutras áreas.
+- Se tiver a localização ativa, os resultados ficam mais úteis.
+
+**Ecrã de referência:**  
+![Mapa principal](imgs/LaneAppMainScreen.jpg)
+
+---
+
+## Filtrar por categorias
+
+Para filtrar os eventos no mapa, use o botão de **filtros** (ícone no canto inferior esquerdo).
+
+Categorias disponíveis:
+- Todos
+- Desporto - Laranja
+- Música & Concertos - Violeta
+- Estudos & Workshops - Azul Celeste
+- Networking & Carreira - Ciano
+- Social & Noite - Rosa
+- Gaming & eSports - Verde
+- Arte & Cultura - Magenta
+- Voluntariado & Comunidade - Amarelo
+- Tecnologia & Startups - Azul
+- Saúde & Bem-estar - Vermelho
+
+1. Abra o menu de filtros.
+2. Selecione uma categoria.
+3. O mapa passa a mostrar eventos dessa categoria.
+
+**Ecrã de referência:**  
+![Filtros](imgs/LaneAppMainScreenFilters.jpg)
+
+---
