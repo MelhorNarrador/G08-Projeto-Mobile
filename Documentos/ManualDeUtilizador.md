@@ -94,7 +94,7 @@ A navegação principal é feita pela barra inferior:
 No **ecrã principal**, vê o mapa com vários marcadores coloridos:
 
 - Cada marcador representa um evento.
-- Cada cor representa uma categoria (Dicionario de categorias do ponto seguinte)
+- Cada cor representa uma categoria (Dicionario de categorias no ponto seguinte)
 - Pode fazer zoom e mover o mapa para explorar zonas diferentes.
 
 Dicas rápidas:
