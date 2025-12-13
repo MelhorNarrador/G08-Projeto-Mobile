@@ -193,7 +193,7 @@ O Perfil mostra uma lista de eventos ativos criados/geridos por si, com ações:
 
 ## Eventos a participar
 
-Quando está inscrito num, ou mais, eventos, no Perfil a secção de participação mostra o numero de eventos em que está inscrito, ao expandir pode selecionar um eventos e clicar em:
+Quando está inscrito num, ou mais, eventos, no Perfil a secção de participação mostra o numero de eventos em que está inscrito, ao expandir pode selecionar um evento e clicar em:
 
 - **Info**: abre informação/detalhes do evento.
 - **Sair**: remove a sua participação.
