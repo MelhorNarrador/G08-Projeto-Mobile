@@ -3,7 +3,7 @@
 **Curso:** Engenharia Informática  
 **Turma:** D02
 **Unidade Curricular:** Base De Dados
-**Ano Letivo:** 2024 / 2025
+**Ano Letivo:** 2025 / 2026
 
 ![Logo LADE](imgs/logo_lane.png)
 
