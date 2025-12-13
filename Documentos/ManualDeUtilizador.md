@@ -21,7 +21,7 @@ O objetivo é simples: **ver o que está a acontecer perto de si**, **encontrar 
 10. [Gerir eventos](#gerir-eventos-admin)
 11. [Eventos a participar](#eventos-a-participar)  
 12. [Rotas até ao evento](#rotas-até-ao-evento)  
-13. [Boas práticas e erros comuns](#boas-práticas-e-erros-comuns)  
+13. [Boas práticas](#boas-práticas)  
 14. [Resolução de problemas](#resolução-de-problemas)  
 
 ---
