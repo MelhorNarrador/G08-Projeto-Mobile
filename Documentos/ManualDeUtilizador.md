@@ -32,7 +32,7 @@ A Lane organiza eventos em **pins no mapa**. Cada pins representa um evento numa
 Dentro da aplicação consegue:
 
  **Filtrar** por categorias (ex.: Desporto, Música, Workshops, Social & Noite, etc.).
-- **Criar eventos** (título, descrição, localização, categoria, data/hora, preço e limite de participantes).
+- **Criar eventos** (imagem de capa, título, descrição, localização, categoria, data/hora, preço e limite de participantes).
 - **Gerir eventos** (editar/apagar).
 - **Ver eventos a participar** e sair desses eventos.
 - **Abrir rotas** para navegar até ao local do evento.
