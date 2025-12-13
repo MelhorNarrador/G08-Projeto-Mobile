@@ -218,7 +218,7 @@ O fluxo é:
 ## Boas práticas
 
 - **Data e hora**: confirme sempre antes de publicar (evite eventos “no passado”).
-- **Localização**: escolha um ponto exato (não “Lisboa” genérico se for num sítio específico).
+- **Localização**: escolha um ponto exato (não algo genérico como “Lisboa”).
 - **Participantes**: defina um limite realista (evite overbooking).
 - **Preço**: se o evento for gratuito, mantenha **0€** para mostrar gratuito.
 
