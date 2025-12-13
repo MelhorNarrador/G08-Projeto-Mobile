@@ -10,6 +10,9 @@ O objetivo é simples: **ver o que está a acontecer perto de si**, **encontrar 
 ## Índice
 
 1. [Vista geral](#vista-geral)
+2. [Requisitos](#requisitos)  
+3. [Criar conta](#criar-conta)
+4. [Iniciar sessão](#iniciar-sessão) 
 
 ---
 
@@ -37,7 +40,7 @@ Dentro da aplicação consegue:
 ## Criar conta
 
 1. Na página de login, clique em **“Não tens uma conta? Regista-te”**.
-2. Preenche os campos:
+2. Preencha os campos:
    - **Nome completo**
    - **Nome de utilizador**
    - **Email**
@@ -50,3 +53,26 @@ Dentro da aplicação consegue:
 ![Criar Conta](imgs/LaneAppLogOn.jpg)
 
 ---
+
+## Iniciar sessão
+
+1. Abra a app Lane ou depois de um registo com sucesso.
+2. Introduza:
+   - **Nome de utilizador ou email**
+   - **Palavra-passe**
+3. Clique em **“Iniciar Sessão”**.
+
+**Ecrã de referência:**  
+![Login](LaneAppLogIn.jpg)
+
+---
+
+## Navegação principal
+
+A navegação principal é feita pela barra inferior:
+
+- **Perfil**: abre o seu perfil, estatísticas e ações relacionadas com eventos.
+- **Ecrã Mapa**: Utilizando gestos, navegue o mapa para encontrar eventos, clique num pin para ver detalhes.
+
+**Ecrã de referência:**  
+![Mapa principal](LaneAppMainScreen.jpg)
