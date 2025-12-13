@@ -47,6 +47,6 @@ Dentro da aplicação consegue:
 3. Clique em **“Criar Conta”** para concluir.
 
 **Ecrã de referência:**  
-![Criar Conta](imgs/LaneAppLogOn.jpg)
+![Criar Conta](imgs/LaneAppRouteExample111.jpg)
 
 ---
