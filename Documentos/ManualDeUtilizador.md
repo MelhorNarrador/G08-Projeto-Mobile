@@ -63,7 +63,7 @@ Dentro da aplicação consegue:
 3. Clique em **“Iniciar Sessão”**.
 
 **Ecrã de referência:**  
-![Login](LaneAppLogIn.jpg)
+![Login](imgs/LaneAppLogIn.jpg)
 
 ---
 
@@ -75,4 +75,4 @@ A navegação principal é feita pela barra inferior:
 - **Ecrã Mapa**: Utilizando gestos, navegue o mapa para encontrar eventos, clique num pin para ver detalhes.
 
 **Ecrã de referência:**  
-![Mapa principal](LaneAppMainScreen.jpg)
+![Mapa principal](imgs/LaneAppMainScreen.jpg)
