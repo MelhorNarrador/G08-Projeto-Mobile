@@ -1,1 +1,2 @@
 ##Manual De Utilizador
+---
