@@ -1,5 +1,5 @@
 # Relatório Técnico da Base de Dados  
-**Projeto:** Lane – Plataforma de Descoberta e Participação em Eventos  
+**Projeto:** Lane – Aplicação de Descoberta e Participação em Eventos  
 **Curso:** Engenharia Informática  
 **Turma:** D02
 **Unidade Curricular:** Base De Dados
