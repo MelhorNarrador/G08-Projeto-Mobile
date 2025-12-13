@@ -111,7 +111,7 @@ Dicas rápidas:
 
 Para filtrar os eventos no mapa, use o botão de **filtros** (ícone no canto inferior esquerdo).
 
-Categorias disponíveis:
+Categorias disponíveis e respetivas cores de pins:
 - Todos - Mostra todas as categorias
 - Desporto - Laranja
 - Música & Concertos - Violeta
