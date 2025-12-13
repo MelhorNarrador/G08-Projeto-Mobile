@@ -1,8 +1,8 @@
 # Relatório Técnico da Base de Dados  
 **Projeto:** Lane – Aplicação de Descoberta e Participação em Eventos  
 **Curso:** Engenharia Informática  
-**Turma:** D02
-**Unidade Curricular:** Base De Dados
+**Turma:** D02  
+**Unidade Curricular:** Base De Dados  
 **Ano Letivo:** 2024 / 2025
 
 ![Logo LADE](imgs/logo_lane.png)
