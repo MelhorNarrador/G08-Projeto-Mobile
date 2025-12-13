@@ -158,15 +158,6 @@ fun ProfileScreenContent(
                 }
             }
         }
-
-        item {
-            Text(
-                text = "Definições",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
         item {
             Button(
                 onClick = onLogout,

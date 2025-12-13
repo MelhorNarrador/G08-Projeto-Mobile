@@ -1,11 +1,12 @@
 package pt.iade.lane.ui
 
-import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
@@ -34,12 +36,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -50,6 +55,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import pt.iade.lane.components.BottomBar
 import pt.iade.lane.components.EventCategoryColors
@@ -62,18 +68,21 @@ import pt.iade.lane.data.utils.LocationUtils
 import pt.iade.lane.data.utils.SessionManager
 import pt.iade.lane.ui.theme.LaneTheme
 import pt.iade.lane.ui.viewmodels.EventoViewModel
-import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.platform.LocalInspectionMode
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LocationUtils.requestLocationPermission(this)
+        val sessionManager = SessionManager(applicationContext)
         setContent {
             LaneTheme {
-                val eventoViewModel: EventoViewModel = viewModel()
+                val eventoViewModel: EventoViewModel = viewModel(
+                    factory = viewModelFactory {
+                        initializer {
+                            EventoViewModel(sessionManager)
+                        }
+                    }
+                )
                 LaneApp(viewModel = eventoViewModel)
             }
         }
@@ -82,6 +91,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun LaneApp(viewModel: EventoViewModel) {
+
     val context = LocalContext.current
     val sessionManager = remember(context) { SessionManager(context) }
     val scope = rememberCoroutineScope()
@@ -95,6 +105,16 @@ fun LaneApp(viewModel: EventoViewModel) {
     val profileImageBase64 = sessionManager.fetchUserProfileImage()
     val userId = sessionManager.fetchUserId()
     var joinedEventsVersion by remember { mutableIntStateOf(0) }
+    LaunchedEffect(Unit) {
+        viewModel.toastMessage.collectLatest { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.refreshTrigger.collectLatest {
+            joinedEventsVersion++
+        }
+    }
     val participatingEvents = remember(eventos, joinedEventsVersion) {
         val joinedIds = sessionManager.fetchJoinedEvents()
         eventos.filter { joinedIds.contains(it.id) }
@@ -105,6 +125,7 @@ fun LaneApp(viewModel: EventoViewModel) {
         }
         else
             emptyList()
+
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
@@ -130,6 +151,7 @@ fun LaneApp(viewModel: EventoViewModel) {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+
                         1 -> {
                             isProfileSheetOpen = true
                         }
@@ -153,75 +175,9 @@ fun LaneApp(viewModel: EventoViewModel) {
         }
 
         ProfileBottomSheet(
+            viewModel = viewModel,
             isOpen = isProfileSheetOpen,
-            onDismiss = { isProfileSheetOpen = false },
-            name = name,
-            username = username,
-            bio = bio,
-            profileImageBase64 = profileImageBase64,
-            activeEvents = activeEvents,
-            participatingEvents = participatingEvents,
-            onEditEventClick = { evento ->
-                val intent = Intent(context, CreateEventActivity::class.java).apply {
-                    putExtra("mode", "edit")
-                    putExtra("eventId", evento.id)
-                }
-                context.startActivity(intent)
-            },
-            onDeleteEventClick = { evento ->
-                scope.launch {
-                    val ok = viewModel.deleteEvent(evento.id)
-                    val msg = if (ok) "Evento apagado." else "Erro ao apagar evento."
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                }
-            },
-            onParticipatingEventLeaveClick = { evento ->
-                val currentUserId = userId
-                if (currentUserId == null) {
-                    Toast.makeText(context, "Utilizador não autenticado.", Toast.LENGTH_SHORT).show()
-                    return@ProfileBottomSheet
-                }
-                scope.launch {
-                    when (val result = viewModel.leaveEvent(evento.id, currentUserId)) {
-                        is EventoRepository.JoinResult.Success -> {
-                            sessionManager.removeJoinedEvent(evento.id)
-                            joinedEventsVersion++
-                            viewModel.carregarEventos()
-                            Toast.makeText(
-                                context,
-                                "Saíste do evento ${evento.title}.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        is EventoRepository.JoinResult.Error -> {
-                            Toast.makeText(
-                                context,
-                                result.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        is EventoRepository.JoinResult.AlreadyJoined -> {
-                            Toast.makeText(
-                                context,
-                                "Estado inconsistente ao sair do evento.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            },
-            onEditProfileClick = {},
-            onChangePasswordClick = {},
-            onLogoutClick = {
-                sessionManager.clearAuth()
-                (context as? Activity)?.let { activity ->
-                    val intent = Intent(activity, LoginActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-                    activity.startActivity(intent)
-                    activity.finish()
-                }
-            }
+            onDismiss = { isProfileSheetOpen = false }
         )
     }
 }
@@ -460,7 +416,13 @@ fun MapContent(
 )
 @Composable
 fun MainActivityPreviewDark() {
+    val context = LocalContext.current
+
     LaneTheme {
-        LaneApp(viewModel = remember { EventoViewModel() })
+        LaneApp(
+            viewModel = remember {
+                EventoViewModel(SessionManager(context))
+            }
+        )
     }
 }
